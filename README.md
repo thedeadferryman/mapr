@@ -1,29 +1,18 @@
-# README #
+# kodgen
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is the kodgen project.
 
-### What is this repository for? ###
+# Building and installing
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+See the [BUILDING](BUILDING.md) document.
 
-### How do I get set up? ###
+# Contributing
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+See the [CONTRIBUTING](CONTRIBUTING.md) document.
 
-### Contribution guidelines ###
+# Licensing
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+<!--
+Please go to https://choosealicense.com/ and choose a license that fits your
+needs. GNU GPLv3 is a pretty nice option ;-)
+-->
