@@ -4,8 +4,8 @@
 
 project(kodgenTests LANGUAGES CXX)
 
-add_executable(kodgen_test source/kodgen_test.cpp)
-target_link_libraries(kodgen_test PRIVATE kodgen_lib)
+add_executable(kodgen_test src/kodgen_test.cpp)
+target_link_libraries(kodgen_test PRIVATE kodgen-base)
 target_compile_features(kodgen_test PRIVATE cxx_std_20)
 
 add_test(NAME kodgen_test COMMAND kodgen_test)

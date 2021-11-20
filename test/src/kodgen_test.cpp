@@ -3,5 +3,5 @@
 auto main() -> int {
     library lib;
 
-    return lib.name == "kodgen" ? 0 : 1;
+    return lib.varName == "kodgen" ? 0 : 1;
 }

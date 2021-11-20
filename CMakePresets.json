@@ -63,7 +63,7 @@
     {
       "name": "ci-win64",
       "inherits": ["flags-windows", "ci-std"],
-      "generator": "Visual Studio 16 2019",
+      "generator": "MSYS - MinGW Makefiles",
       "architecture": "x64",
       "hidden": true
     },
