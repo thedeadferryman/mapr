@@ -12,14 +12,14 @@
 namespace kodgen::match {
 
 class MatchContext {
-	std::vector<view::DeclBase> declarations;
+	std::vector<std::shared_ptr<view::DeclBase>> declarations;
 
   public:
-	void addDeclaration(const view::DeclBase& decl);
+	void addDeclaration(std::shared_ptr<view::DeclBase> decl);
 
 	[[nodiscard]] auto findDeclaration(const std::string_view &type) -> std::optional<view::DeclBase>;
 
-	const std::vector<view::DeclBase>& getDeclarations() const;
+	const std::vector<std::shared_ptr<view::DeclBase>>& getDeclarations() const;
 };
 
 }  // namespace kodgen::match

@@ -17,6 +17,7 @@ include(cmake/variables.cmake)
 # ---- Dependencies ----
 
 find_package(Clang REQUIRED CONFIG)
+find_package(Boost 1.70 REQUIRED COMPONENTS regex)
 
 # ---- Declare library ----
 
@@ -37,6 +38,7 @@ target_include_directories(
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
+        ${BOOST_INCLUDE_DIRS}
 )
 
 target_compile_features(kodgen-base PUBLIC cxx_std_20)

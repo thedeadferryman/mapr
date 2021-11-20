@@ -64,7 +64,8 @@ void PrimitiveFunctionMatcher::run(
 
 	auto retType = PrimitiveType(node->getReturnType());
 
-	auto decl = PrimitiveFunction(node->getDeclName().getAsString(), retType, parms);
+	auto decl = std::make_shared<PrimitiveFunction>(
+		node->getDeclName().getAsString(), retType, parms);
 
 	context->addDeclaration(decl);
 }

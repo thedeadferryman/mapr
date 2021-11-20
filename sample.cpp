@@ -13,6 +13,10 @@ auto square2(int k) {
 	return k * k;
 }
 
+auto sum(int a, int b) {
+	return a + b;
+}
+
 auto sumOver(vector<int> v) {
 	int a = 0;
 
