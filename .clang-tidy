@@ -1,7 +1,8 @@
 ---
 # Enable ALL the things! Except not really
-# misc-non-private-member-variables-in-classes: the options don't do anything
+# resources-non-private-member-variables-in-classes: the options don't do anything
 Checks: "*,\
+  -resources-no-recursion,\
   -google-readability-todo,\
   -altera-unroll-loops,\
   -fuchsia-*,\
@@ -9,9 +10,10 @@ Checks: "*,\
   -llvm-header-guard,\
   -llvm-include-order,\
   -llvmlibc-*,\
-  -misc-non-private-member-variables-in-classes"
+  -resources-non-private-member-variables-in-classes"
 WarningsAsErrors: ''
 CheckOptions:
+  - key: 'resources-no-recursion'
   - key: 'bugprone-argument-comment.StrictMode'
     value: 'true'
   # Prefer using enum classes with 2 values for parameters instead of bools
@@ -68,9 +70,9 @@ CheckOptions:
   - key: 'readability-identifier-naming.ConstexprVariableCase'
     value: 'camelBack'
   - key: 'readability-identifier-naming.EnumCase'
-    value: 'camelBack'
+    value: 'CamelCase'
   - key: 'readability-identifier-naming.EnumConstantCase'
-    value: 'camelBack'
+    value: 'CamelCase'
   - key: 'readability-identifier-naming.FunctionCase'
     value: 'camelBack'
   - key: 'readability-identifier-naming.GlobalConstantCase'
@@ -149,4 +151,8 @@ CheckOptions:
     value: 'camelBack'
   - key: 'readability-identifier-naming.VirtualMethodCase'
     value: 'camelBack'
+  - key: 'readability-identifier-length.IgnoredVariableNames'
+    value: 'id'
+  - key: 'readability-identifier-length.IgnoredParameterNames'
+    value: 'id'
 ...
