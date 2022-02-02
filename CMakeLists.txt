@@ -108,8 +108,6 @@ set(KODGEN_SOURCESET src/app/main.cpp)
 add_executable(kodgen_kodgen ${KODGEN_SOURCESET})
 add_executable(kodgen::kodgen ALIAS kodgen_kodgen)
 
-add_executable(never sample.cpp sample.c.cpp)
-
 set_target_properties(
         kodgen_kodgen PROPERTIES
         OUTPUT_NAME kodgen
