@@ -27,9 +27,7 @@ AST_MATCHER_P(clang::FunctionDecl,
               TypeMatcher) {
 	auto success = true;
 
-	for (auto parm : Node.parameters()) {
-		parm->dump();
-
+	for (auto* parm : Node.parameters()) {
 		success =
 			success and TypeMatcher.matches(parm->getType(), Finder, Builder);
 	}
