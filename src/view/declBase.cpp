@@ -6,11 +6,14 @@
 
 using kodgen::view::DeclBase;
 
-DeclBase::DeclBase(const std::string_view& name)
-	: name(name) {};
+DeclBase::DeclBase(std::string_view id, DeclType declType)
+	: id(id)
+	, declType(declType) {};
 
-std::string_view DeclBase::getName() const {
-	return std::string_view(name);
+auto DeclBase::getID() const -> const std::string& {
+	return id;
 }
 
-DeclBase::~DeclBase() = default;
+auto DeclBase::getDeclType() const -> DeclType {
+	return declType;
+}

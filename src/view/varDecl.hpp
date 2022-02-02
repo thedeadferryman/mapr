@@ -6,22 +6,21 @@
 
 #include <string>
 
-#include "declBase.hpp"
-#include "util/concepts.hpp"
-#include "view/type/typeBase.hpp"
+#include <clang/AST/Type.h>
+
+#include "view/declBase.hpp"
+#include "view/types/typeBase.hpp"
 
 namespace kodgen::view {
 
-template<util::Convertible<TypeBase> TypeT>
 class VarDecl : public DeclBase {
-	const TypeT type;
+	const std::shared_ptr<TypeBase> type;
 
   public:
-	VarDecl(const std::string_view& name, const TypeT type)
-		: DeclBase(name)
-		, type(type) {}
+	VarDecl(std::string_view id, std::shared_ptr<TypeBase> type);
 
-	[[nodiscard]] virtual TypeT getType() const { return type; };
+	[[nodiscard]] virtual auto getType() const
+		-> const std::shared_ptr<TypeBase>&;
 };
 
 }  // namespace kodgen::view

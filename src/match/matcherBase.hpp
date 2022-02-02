@@ -9,22 +9,20 @@
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 
-#include "matchContext.hpp"
+#include "view/declContext.hpp"
 
 namespace kodgen::match {
 
-template<typename T>
 class MatcherBase : public clang::ast_matchers::MatchFinder::MatchCallback {
   public:
-	explicit MatcherBase(std::shared_ptr<MatchContext> context)
+	explicit MatcherBase(std::shared_ptr<view::DeclContext> context)
 		: context(std::move(context)) {};
 
-	[[nodiscard]] virtual clang::ast_matchers::internal::Matcher<
-		clang::Decl>
-	getMatcher() const = 0;
+	virtual void registerMatcher(
+		clang::ast_matchers::MatchFinder* matchFinder) = 0;
 
   protected:
-	std::shared_ptr<MatchContext> context;
+	std::shared_ptr<view::DeclContext> context;
 };
 
 }  // namespace kodgen::match
