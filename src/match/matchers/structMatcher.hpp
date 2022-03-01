@@ -14,7 +14,7 @@ class StructMatcher : public MatcherBase {
 	void run(
 		const clang::ast_matchers::MatchFinder::MatchResult& result) override;
 
-	void registerMatcher(
+	void bind(
 		clang::ast_matchers::MatchFinder* matchFinder) override;
 };
 

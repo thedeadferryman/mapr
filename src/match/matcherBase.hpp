@@ -18,7 +18,7 @@ class MatcherBase : public clang::ast_matchers::MatchFinder::MatchCallback {
 	explicit MatcherBase(std::shared_ptr<view::DeclContext> context)
 		: context(std::move(context)) {};
 
-	virtual void registerMatcher(
+	virtual void bind(
 		clang::ast_matchers::MatchFinder* matchFinder) = 0;
 
   protected:

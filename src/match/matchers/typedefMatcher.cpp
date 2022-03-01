@@ -19,7 +19,7 @@ using kodgen::match::TypedefMatcher;
 TypedefMatcher::TypedefMatcher(std::shared_ptr<view::DeclContext> context)
 	: MatcherBase(std::move(context)) {}
 
-void TypedefMatcher::registerMatcher(
+void TypedefMatcher::bind(
 	clang::ast_matchers::MatchFinder* matchFinder) {
 	const auto matcher =
 		typedefNameDecl(isExpansionInFileMatching("sample.cpp"));

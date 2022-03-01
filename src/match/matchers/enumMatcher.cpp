@@ -23,7 +23,7 @@ using kodgen::view::EnumKind;
 EnumMatcher::EnumMatcher(std::shared_ptr<view::DeclContext> context)
 	: MatcherBase(std::move(context)) {}
 
-void EnumMatcher::registerMatcher(MatchFinder* matchFinder) {
+void EnumMatcher::bind(MatchFinder* matchFinder) {
 	const auto matcher =
 		enumDecl(isExpansionInFileMatching("sample.cpp")).bind("enum");
 
@@ -45,7 +45,6 @@ void EnumMatcher::run(
 		auto decl = std::make_shared<EnumDecl>(enumType);
 
 		for (auto* memberDecl : enumNode->enumerators()) {
-			llvm::errs() << memberDecl->getNameAsString() << "\n";
 			const std::shared_ptr<EnumDecl::Member>& member =
 				std::make_shared<EnumDecl::Member>(
 					memberDecl->getNameAsString(), decl);

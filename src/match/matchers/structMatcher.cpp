@@ -21,7 +21,7 @@ void StructMatcher::run(
 	llvm::errs() << *node << "\n";
 }
 
-void StructMatcher::registerMatcher(
+void StructMatcher::bind(
 	clang::ast_matchers::MatchFinder* matchFinder) {
 	const auto matcher = recordDecl(isStruct()).bind("struc");
 

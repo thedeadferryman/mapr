@@ -73,7 +73,7 @@ void FunctionMatcher::run(
 		context->addDeclaration(newOverload);
 	}
 }
-void kodgen::match::FunctionMatcher::registerMatcher(
+void kodgen::match::FunctionMatcher::bind(
 	clang::ast_matchers::MatchFinder* matchFinder) {
 	const clang::ast_matchers::DeclarationMatcher matcher =
 		allOf(functionDecl(  //

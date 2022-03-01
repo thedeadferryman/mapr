@@ -11,6 +11,7 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "match/matchers/classMatcher.hpp"
 #include "match/matchers/enumMatcher.hpp"
 #include "match/matchers/functionMatcher.hpp"
 #include "match/matchers/structMatcher.hpp"
@@ -26,13 +27,15 @@
 #include "transform/sourceTransformer.hpp"
 #include "transform/writerStream.hpp"
 
+#include "transform/mappers/aux/auxMapperFactory.hpp"
+#include "transform/mappers/enum/enumMapperFactory.hpp"
+#include "transform/mappers/function/functionDeclarationMapperFactory.hpp"
+
 #include "util/resourceLoader.hpp"
 
 namespace FS = std::filesystem;
 
 using std::int32_t;
-
-using boost::algorithm::join;
 
 using llvm::cl::NumOccurrencesFlag;
 using llvm::cl::OptionCategory;
@@ -43,6 +46,7 @@ using clang::tooling::newFrontendActionFactory;
 
 using clang::ast_matchers::MatchFinder;
 
+using kodgen::match::ClassMatcher;
 using kodgen::match::EnumMatcher;
 using kodgen::match::FunctionMatcher;
 using kodgen::match::MatcherBase;
@@ -60,6 +64,11 @@ using kodgen::transform::DependencyResolver;
 using kodgen::transform::SourceTransformer;
 using kodgen::transform::TemplateFile;
 using kodgen::transform::WriterStream;
+
+using kodgen::transform::AuxMapperFactory;
+using kodgen::transform::EnumMapperFactory;
+using kodgen::transform::FunctionDeclarationMapperFactory;
+using kodgen::transform::MapperFactoryMode;
 
 using kodgen::util::ResourceLoader;
 
@@ -83,9 +92,11 @@ auto main(int32_t argc, const char** argv) -> int32_t {
 
 	auto functionMatcher = FunctionMatcher(ctx);
 	auto enumMatcher = EnumMatcher(ctx);
+	auto classMatcher = ClassMatcher(ctx);
 
-	functionMatcher.registerMatcher(&matchFinder);
-	enumMatcher.registerMatcher(&matchFinder);
+	functionMatcher.bind(&matchFinder);
+	enumMatcher.bind(&matchFinder);
+	classMatcher.bind(&matchFinder);
 
 	auto runResult = tool.run(newFrontendActionFactory(&matchFinder).get());
 
@@ -98,6 +109,15 @@ auto main(int32_t argc, const char** argv) -> int32_t {
 	auto resolver = DependencyResolver(ctx, resourceLoader);
 
 	auto transformer = SourceTransformer(writer, resolver);
+
+	auto funcMapper = std::make_shared<FunctionDeclarationMapperFactory>(
+		MapperFactoryMode::DECLARATION);
+	auto auxMapper = std::make_shared<AuxMapperFactory>();
+	auto enumMapper = std::make_shared<EnumMapperFactory>();
+
+	transformer.registerMapper(funcMapper);
+	transformer.registerMapper(auxMapper);
+	transformer.registerMapper(enumMapper);
 
 	for (auto [_, decl] : ctx->getDeclarations()) {
 		transformer.writeDecl(decl);
@@ -122,7 +142,7 @@ auto main(int32_t argc, const char** argv) -> int32_t {
 		}
 	}
 
-	auto ofs = std::ofstream(FS::current_path() / "sample.c.cpp");
+	auto ofs = std::ofstream(FS::current_path() / "out" / "sample.h");
 
 	ofs << code;
 
