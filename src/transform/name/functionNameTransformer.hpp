@@ -18,12 +18,27 @@ class FunctionNameTransformer {
 
 	FunctionNameTransformer() = delete;
 
-	[[nodiscard]] static auto getOverloadName(const view::NamespacedName& functionName,
-	                            const view::FunctionOverload& overload,
-	                            SlugType slugType) -> std::string;
+	[[nodiscard]] static auto getOverloadName(
+		const view::NamespacedName& functionName) -> std::string;
+
+	[[nodiscard]] static auto getOverloadName(
+		const view::NamespacedName& functionName, std::size_t argCount)
+		-> std::string;
+
+	[[nodiscard]] static auto getOverloadName(
+		const view::NamespacedName& functionName,
+		const view::FunctionOverload& overload) -> std::string;
+
+	[[nodiscard]] static auto getOverloadName(
+		const view::NamespacedName& functionName,
+		const view::FunctionOverload& overload,
+		SlugType slugType) -> std::string;
+
   private:
-	static auto functionParamSuffix(const view::FunctionOverload& overload,
-	                                SlugType slugType) -> std::string;
+	[[nodiscard]] static auto getOverloadTypedSuffix(const view::FunctionOverload& overload)
+		-> std::string;
+
+	[[nodiscard]] static auto getOverloadCountSuffix(std::size_t argCount) -> std::string;
 };
 
-}  // namespace kodgen::getName
+}  // namespace kodgen::transform

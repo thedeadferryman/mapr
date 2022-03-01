@@ -17,21 +17,38 @@ auto FunctionNameTransformer::getOverloadName(
 	const view::NamespacedName& functionName,
 	const view::FunctionOverload& overload,
 	SlugType slugType) -> std::string {
-	if (slugType == SlugType::NoSlug) {
-		return NamespacedNameTransformer::getName(functionName);
+	switch (slugType) {
+		case SlugType::NoSlug:
+			return getOverloadName(functionName);
+		case SlugType::CountSlug:
+			return getOverloadName(functionName, overload.countArguments());
+		case SlugType::FullSlug:
+			return getOverloadName(functionName, overload);
+		default:
+			UNREACHABLE();
 	}
-
-	return NamespacedNameTransformer::getName(functionName)
-		+ functionParamSuffix(overload, slugType);
 }
 
-auto FunctionNameTransformer::functionParamSuffix(
-	const view::FunctionOverload& overload, SlugType slugType) -> std::string {
-	auto typeSlugs = std::vector<std::string>();
+auto FunctionNameTransformer::getOverloadName(
+	const view::NamespacedName& functionName,
+	const view::FunctionOverload& overload) -> std::string {
+	return getOverloadName(functionName) + getOverloadTypedSuffix(overload);
+}
 
-	if (slugType == SlugType::CountSlug) {
-		return "_" + std::to_string(overload.countArguments());
-	}
+auto FunctionNameTransformer::getOverloadName(
+	const view::NamespacedName& functionName) -> std::string {
+	return NamespacedNameTransformer::getName(functionName);
+}
+
+auto FunctionNameTransformer::getOverloadName(
+	const view::NamespacedName& functionName, std::size_t argCount)
+	-> std::string {
+	return getOverloadName(functionName) + getOverloadCountSuffix(argCount);
+}
+
+auto FunctionNameTransformer::getOverloadTypedSuffix(
+	const view::FunctionOverload& overload) -> std::string {
+	auto typeSlugs = std::vector<std::string>();
 
 	std::transform(
 		std::begin(overload.getArguments()),
@@ -42,6 +59,17 @@ auto FunctionNameTransformer::functionParamSuffix(
 		});
 
 	return "_" + boost::algorithm::join(typeSlugs, "$");
+}
+
+auto FunctionNameTransformer::getOverloadCountSuffix(std::size_t argCount)
+	-> std::string {
+	if (argCount == 0) {
+		return "$1$$01";
+	} else if (argCount == 1) {
+		return "$1$$00";
+	} else {
+		return util::StringBuilder() << "$" << argCount << "$$11";
+	}
 }
 
 #pragma clang diagnostic pop

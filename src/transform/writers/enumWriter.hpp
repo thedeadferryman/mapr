@@ -20,7 +20,7 @@ class EnumWriter : public WriterBase {
 
 	void apply(std::ostream& stream) const override;
 
-	[[nodiscard]] auto operator<<(std::unique_ptr<WriterBase> member) -> EnumWriter&;
+	auto operator<<(std::unique_ptr<WriterBase> member) -> EnumWriter&;
 };
 
 }  // namespace kodgen::transform
