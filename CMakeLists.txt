@@ -38,7 +38,7 @@ set(LIBKODGEN_SOURCESET
         src/view/namespacedName.cpp src/view/namespacedName.hpp
         src/match/nameResolver.cpp src/match/nameResolver.hpp
         src/util/macro.hpp
-        src/transform/mappers/mapperBase.hpp
+        src/transform/mappers/base/mapperBase.hpp
         src/view/function/functionDecl.cpp src/view/function/functionDecl.hpp
         src/match/matchers/typedefMatcher.cpp src/match/matchers/typedefMatcher.hpp
         src/view/types/aliasType.cpp src/view/types/aliasType.hpp
@@ -53,7 +53,7 @@ set(LIBKODGEN_SOURCESET
         src/view/types/enumType.cpp src/view/types/enumType.hpp
         src/match/typeResolver.cpp src/match/typeResolver.hpp
         src/match/matchers/internal/clangMatchers.hpp
-        src/transform/mappers/functionMapper.cpp src/transform/mappers/functionMapper.hpp
+        src/transform/mappers/function/functionDeclarationMapper.cpp src/transform/mappers/function/functionDeclarationMapper.hpp
         src/transform/writerStream.cpp src/transform/writerStream.hpp
         src/transform/writers/writerBase.cpp src/transform/writers/writerBase.hpp
         src/transform/sourceTransformer.cpp src/transform/sourceTransformer.hpp
@@ -72,11 +72,10 @@ set(LIBKODGEN_SOURCESET
         src/transform/aux/templateFile.cpp src/transform/aux/templateFile.hpp
         src/util/resourceLoader.cpp src/util/resourceLoader.hpp
         src/util/exceptions/resourceNotFoundException.cpp src/util/exceptions/resourceNotFoundException.hpp
-        src/transform/mappers/auxMapper.cpp src/transform/mappers/auxMapper.hpp
+        src/transform/mappers/aux/auxMapper.cpp src/transform/mappers/aux/auxMapper.hpp
         src/transform/writers/textWriter.cpp src/transform/writers/textWriter.hpp
-        src/transform/mappers.hpp
         src/transform/dependencies/dependencyRequest.cpp src/transform/dependencies/dependencyRequest.hpp
-        src/transform/dependencies/declRequest.cpp src/transform/dependencies/declRequest.hpp src/transform/dependencies/auxRequest.cpp src/transform/dependencies/auxRequest.hpp src/transform/dependencies/typeRequest.cpp src/transform/dependencies/typeRequest.hpp src/transform/aux/typeDecl.cpp src/transform/aux/typeDecl.hpp src/transform/mappers/typeMapper.cpp src/transform/mappers/typeMapper.hpp src/transform/writers/includeWriter.cpp src/transform/writers/includeWriter.hpp src/transform/writers/defineConditionWriter.cpp src/transform/writers/defineConditionWriter.hpp src/transform/writers/c11GenericWriter.cpp src/transform/writers/c11GenericWriter.hpp src/util/tree/nodeBase.cpp src/util/tree/nodeBase.hpp src/util/tree/valueNode.cpp src/util/tree/valueNode.hpp src/transform/writers/defineWriter.cpp src/transform/writers/defineWriter.hpp src/transform/writers/lineEscapedWriter.cpp src/transform/writers/lineEscapedWriter.hpp src/transform/writers/ieeWriter.cpp src/transform/writers/ieeWriter.hpp src/transform/mappers/enumMapper.cpp src/transform/mappers/enumMapper.hpp src/transform/writers/blockWriter.cpp src/transform/writers/blockWriter.hpp src/transform/writers/typedefWriter.cpp src/transform/writers/typedefWriter.hpp src/transform/name/namespacedNameTransformer.cpp src/transform/name/namespacedNameTransformer.hpp src/transform/writers/enumWriter.cpp src/transform/writers/enumWriter.hpp src/transform/writers/sequentialWriter.cpp src/transform/writers/sequentialWriter.hpp src/util/collectionUtils.cpp src/util/collectionUtils.hpp)
+        src/transform/dependencies/declRequest.cpp src/transform/dependencies/declRequest.hpp src/transform/dependencies/auxRequest.cpp src/transform/dependencies/auxRequest.hpp src/transform/dependencies/typeRequest.cpp src/transform/dependencies/typeRequest.hpp src/transform/aux/typeDecl.cpp src/transform/aux/typeDecl.hpp src/transform/mappers/typeMapper.cpp src/transform/mappers/typeMapper.hpp src/transform/writers/includeWriter.cpp src/transform/writers/includeWriter.hpp src/transform/writers/defineConditionWriter.cpp src/transform/writers/defineConditionWriter.hpp src/transform/writers/c11GenericWriter.cpp src/transform/writers/c11GenericWriter.hpp src/util/tree/nodeBase.cpp src/util/tree/nodeBase.hpp src/util/tree/valueNode.cpp src/util/tree/valueNode.hpp src/transform/writers/defineWriter.cpp src/transform/writers/defineWriter.hpp src/transform/writers/lineEscapedWriter.cpp src/transform/writers/lineEscapedWriter.hpp src/transform/writers/ieeWriter.cpp src/transform/writers/ieeWriter.hpp src/transform/mappers/enum/enumMapper.cpp src/transform/mappers/enum/enumMapper.hpp src/transform/writers/blockWriter.cpp src/transform/writers/blockWriter.hpp src/transform/writers/typedefWriter.cpp src/transform/writers/typedefWriter.hpp src/transform/name/namespacedNameTransformer.cpp src/transform/name/namespacedNameTransformer.hpp src/transform/writers/enumWriter.cpp src/transform/writers/enumWriter.hpp src/transform/writers/sequentialWriter.cpp src/transform/writers/sequentialWriter.hpp src/util/collectionUtils.cpp src/util/collectionUtils.hpp src/transform/mappers/base/mapperFactoryBase.hpp src/transform/mappers/aux/auxMapperFactory.cpp src/transform/mappers/aux/auxMapperFactory.hpp src/transform/mappers/base/mapperFactoryBase.cpp src/transform/mappers/function/functionDeclarationMapperFactory.cpp src/transform/mappers/function/functionDeclarationMapperFactory.hpp src/transform/mappers/enum/enumMapperFactory.cpp src/transform/mappers/enum/enumMapperFactory.hpp src/match/matchers/classMatcher.cpp src/match/matchers/classMatcher.hpp src/transform/writers/expressionCallWriter.cpp src/transform/writers/expressionCallWriter.hpp)
 
 add_library(kodgen-base SHARED ${LIBKODGEN_SOURCESET})
 

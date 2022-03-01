@@ -83,16 +83,18 @@ IncludeCategories:
     Priority: 3
   - Regex: '^[<"](view).+\.h(pp)?[>"]'
     Priority: 4
+  - Regex: '^[<"](transform\/mappers).+\.h(pp)?[>"]'
+    Priority: 6
   - Regex: '^[<"](transform).+\.h(pp)?[>"]'
     Priority: 5
   - Regex: '^[<"](util).+\.h(pp)?[>"]'
-    Priority: 6
-  - Regex: '^<.+\.h(pp)?>'
     Priority: 7
-  - Regex: '^<.*'
+  - Regex: '^<.+\.h(pp)?>'
     Priority: 8
-  - Regex: '.*'
+  - Regex: '^<.*'
     Priority: 9
+  - Regex: '.*'
+    Priority: 10
 IncludeIsMainRegex: ''
 IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true

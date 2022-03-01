@@ -13,7 +13,6 @@ Checks: "*,\
   -resources-non-private-member-variables-in-classes"
 WarningsAsErrors: ''
 CheckOptions:
-  - key: 'resources-no-recursion'
   - key: 'bugprone-argument-comment.StrictMode'
     value: 'true'
   # Prefer using enum classes with 2 values for parameters instead of bools
@@ -155,4 +154,6 @@ CheckOptions:
     value: 'id'
   - key: 'readability-identifier-length.IgnoredParameterNames'
     value: 'id'
+  - key: 'modernize-concat-nested-namespaces'
+    value: 'true'
 ...

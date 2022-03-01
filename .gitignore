@@ -10,3 +10,4 @@ CMakeUserPresets.json
 project-include-after.cmake
 sample.*
 /tools/report.json
+out/
