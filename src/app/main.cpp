@@ -111,7 +111,7 @@ auto main(int32_t argc, const char** argv) -> int32_t {
 	auto transformer = SourceTransformer(writer, resolver);
 
 	auto funcMapper = std::make_shared<FunctionDeclarationMapperFactory>(
-		MapperFactoryMode::DECLARATION);
+		MapperFactoryMode::Declaration);
 	auto auxMapper = std::make_shared<AuxMapperFactory>();
 	auto enumMapper = std::make_shared<EnumMapperFactory>();
 

@@ -19,12 +19,10 @@ auto AuxMapper::checkDependencies() const -> std::vector<std::shared_ptr<Depende
 	return {};
 }
 
-void AuxMapper::writeDeclaration(kodgen::transform::WriterStream& writer) {
+void AuxMapper::write(kodgen::transform::WriterStream& writer) {
 	MatchType::switchType(
 		decl,  //
 		[&writer](const std::shared_ptr<TemplateFile>& templateFile) {
 			writer << TextWriter(templateFile->replaceWith());
 		});
 }
-
-void AuxMapper::writeDefinition(kodgen::transform::WriterStream& /*unused*/) {}

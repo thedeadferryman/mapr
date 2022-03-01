@@ -30,9 +30,7 @@ class MapperBase {
 
 	[[nodiscard]] virtual auto checkDependencies() const -> std::vector<std::shared_ptr<DependencyRequest>> = 0;
 
-	virtual void writeDeclaration(WriterStream& writer) = 0;
-
-	virtual void writeDefinition(WriterStream& writer) = 0;
+	virtual void write(WriterStream& writer) = 0;
 };
 
 }  // namespace kodgen::getName

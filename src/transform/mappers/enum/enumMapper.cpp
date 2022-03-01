@@ -22,7 +22,7 @@ auto EnumMapper::checkDependencies() const
 	return {std::make_shared<AuxRequest>(AuxDependencyId::ExternPrelude)};
 }
 
-void EnumMapper::writeDeclaration(kodgen::transform::WriterStream& writer) {
+void EnumMapper::write(kodgen::transform::WriterStream& writer) {
 	auto externBlock = ExternCWriter::makeBlock();
 
 	auto enumName = TypeNameTransformer::getTypeName(enumDecl->getType());
@@ -41,8 +41,6 @@ void EnumMapper::writeDeclaration(kodgen::transform::WriterStream& writer) {
 
 	writer << externBlock;
 }
-
-void EnumMapper::writeDefinition(kodgen::transform::WriterStream& writer) {}
 
 auto EnumMapper::getMemberName(
 	const std::shared_ptr<view::EnumMemberDecl>& member) const -> std::string {

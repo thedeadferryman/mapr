@@ -11,7 +11,8 @@
 #include "view/function/functionDecl.hpp"
 
 #include "transform/dependencies/dependencyResolver.hpp"
-#include "transform/mappers/mapperBase.hpp"
+#include "transform/mappers/base/mapperBase.hpp"
+#include "transform/mappers/base/mapperFactoryBase.hpp"
 #include "transform/writerStream.hpp"
 
 namespace kodgen::transform {
@@ -20,6 +21,7 @@ class SourceTransformer {
 	WriterStream& writerStream;
 	DependencyResolver dependencyResolver;
 	std::unordered_map<std::string, bool> writtenDecls;
+	std::vector<std::shared_ptr<MapperFactoryBase>> factories;
 
   public:
 	explicit SourceTransformer(WriterStream& wStream,
@@ -27,12 +29,14 @@ class SourceTransformer {
 
 	void writeDecl(std::shared_ptr<view::DeclBase> decl);
 
-	auto resolveDependency(std::shared_ptr<DependencyRequest> dependencyId) const
-		-> std::shared_ptr<view::DeclBase>;
+	auto resolveDependency(std::shared_ptr<DependencyRequest> dependencyId)
+		const -> std::shared_ptr<view::DeclBase>;
+
+	void registerMapper(std::shared_ptr<MapperFactoryBase> factoryBase);
 
   private:
-	static auto mapperForDecl(std::shared_ptr<view::DeclBase>)
+	auto mapperForDecl(std::shared_ptr<view::DeclBase>)
 		-> std::unique_ptr<MapperBase>;
 };
 
-}  // namespace kodgen::getName
+}  // namespace kodgen::transform

@@ -8,7 +8,7 @@
 #include "view/types/typeBase.hpp"
 
 #include "transform/aux/typeDecl.hpp"
-#include "transform/mappers/mapperBase.hpp"
+#include "transform/mappers/base/mapperBase.hpp"
 
 namespace kodgen::transform {
 
@@ -21,8 +21,7 @@ class TypeMapper : public MapperBase {
 	auto checkDependencies() const
 		-> std::vector<std::shared_ptr<DependencyRequest>> override;
 
-	void writeDeclaration(WriterStream& writer) override;
-	void writeDefinition(WriterStream& writer) override;
+	void write(WriterStream& writer) override;
 
   private:
 	static void writeBuiltinType(WriterStream& writer,

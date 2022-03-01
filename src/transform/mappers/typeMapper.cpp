@@ -23,7 +23,7 @@ auto TypeMapper::checkDependencies() const
 	return std::vector<std::shared_ptr<DependencyRequest>>();
 }
 
-void TypeMapper::writeDeclaration(WriterStream& writer) {
+void TypeMapper::write(WriterStream& writer) {
 	MatchType::switchType(
 		type,  //
 		[&writer](const std::shared_ptr<view::BuiltinType>& builtinType) {
@@ -31,7 +31,6 @@ void TypeMapper::writeDeclaration(WriterStream& writer) {
 		},
 		[=](const std::shared_ptr<view::TypeBase>&) {});
 }
-void TypeMapper::writeDefinition(WriterStream& /*unused*/) {}
 
 void TypeMapper::writeBuiltinType(
 	WriterStream& writer, const std::shared_ptr<view::BuiltinType>& type) {
