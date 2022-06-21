@@ -6,11 +6,13 @@
 
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class BuiltinType : public TypeBase {
   public:
 	using Variant = clang::BuiltinType::Kind;
+
+	[[nodiscard]] static auto makeVoid() -> std::shared_ptr<BuiltinType>;
 
   private:
 	Variant variant;
@@ -26,6 +28,8 @@ class BuiltinType : public TypeBase {
 	[[nodiscard]] auto getDisplayName() const -> std::string;
 
 	[[nodiscard]] auto getPrettyName() const -> std::string override;
+
+	[[nodiscard]] auto isVoid() const -> bool override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

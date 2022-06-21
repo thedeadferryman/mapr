@@ -10,7 +10,7 @@
 #include "transform/writers/sequentialWriter.hpp"
 #include "transform/writers/textWriter.hpp"
 
-using kodgen::transform::EnumWriter;
+using mapr::transform::EnumWriter;
 
 EnumWriter::EnumWriter(std::unique_ptr<WriterBase> name)
 	: name(std::move(name)) {}

@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace kodgen::tree {
+namespace mapr::tree {
 
 class NodeBase : public std::enable_shared_from_this<NodeBase> {
 	std::vector<std::shared_ptr<NodeBase>> children;
@@ -69,4 +69,4 @@ class NodeBase : public std::enable_shared_from_this<NodeBase> {
 	virtual auto print(std::ostream& os, std::size_t depth) -> decltype(os);
 };
 
-}  // namespace kodgen::tree
+}  // namespace mapr::tree

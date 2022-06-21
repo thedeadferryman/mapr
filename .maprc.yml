@@ -1,0 +1,20 @@
+---
+output: samples/simple
+unitName: libsimple
+filters:
+  - by: file#basename
+    mode: include
+    regex: simple.hpp
+
+variables:
+  namePrefix: ''
+  exportSpecifier: EXPORT
+  preludePrefix: KHELPER
+  constructorName: new
+  destructorName: dispose
+  classTypeSuffix: T
+
+formatOptions:
+  formatStyle: file
+  fallbackStyle: LLVM
+  styleFile: ./.clang-format

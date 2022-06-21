@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "match/matcherBase.hpp"
+#include "match/matchers/matcherBase.hpp"
 
-namespace kodgen::match {
+namespace mapr::match {
 
 class TypedefMatcher : public MatcherBase {
   public:
@@ -19,4 +19,4 @@ class TypedefMatcher : public MatcherBase {
 		clang::ast_matchers::MatchFinder* matchFinder) override;
 };
 
-}  // namespace kodgen::match
+}  // namespace mapr::match

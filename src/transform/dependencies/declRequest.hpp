@@ -8,7 +8,7 @@
 
 #include "transform/dependencies/dependencyRequest.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class DeclRequest : public DependencyRequest {
 	std::string declId;
@@ -19,4 +19,4 @@ class DeclRequest : public DependencyRequest {
 	[[nodiscard]] auto getDeclarationId() const -> const std::string&;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

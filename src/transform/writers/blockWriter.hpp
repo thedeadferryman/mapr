@@ -9,25 +9,24 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class BlockWriter : public WriterBase {
-  private:
 	std::unique_ptr<WriterBase> prelude;
 	std::vector<std::unique_ptr<WriterBase>> body;
 	bool semicolon;
 
   public:
-	BlockWriter(std::unique_ptr<WriterBase> prelude,
-	            bool semicolon = false);
+	explicit BlockWriter(std::unique_ptr<WriterBase> prelude,
+	                     bool semicolon = false);
+
 	BlockWriter(std::unique_ptr<WriterBase> prelude,
 	            std::vector<std::unique_ptr<WriterBase>> body,
 	            bool semicolon = false);
 
-
 	void apply(std::ostream& stream) const override;
 
-	auto operator<<(std::unique_ptr<WriterBase>&& writer) -> BlockWriter&;
+	auto operator<<(std::unique_ptr<WriterBase> writer) -> BlockWriter&;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

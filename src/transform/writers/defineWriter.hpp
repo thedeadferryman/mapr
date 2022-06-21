@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "transform/writers/writerBase.hpp"
-
+#include <memory>
 #include <optional>
 #include <vector>
-#include <memory>
 
-namespace kodgen::transform {
+#include "transform/writers/writerBase.hpp"
+
+namespace mapr::transform {
 
 class DefineWriter : public WriterBase {
 	std::unique_ptr<WriterBase> idWriter;
@@ -26,4 +26,4 @@ class DefineWriter : public WriterBase {
 	void apply(std::ostream& stream) const override;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

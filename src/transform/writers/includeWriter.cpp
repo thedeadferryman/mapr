@@ -6,9 +6,9 @@
 
 #include "util/macro.hpp"
 
-using kodgen::transform::IncludeWriter;
+using mapr::transform::IncludeWriter;
 
-IncludeWriter::IncludeWriter(std::string_view file, IncludeType type)
+IncludeWriter::IncludeWriter(std::string_view file, IncludeMode type)
 	: file(file)
 	, type(type) {}
 
@@ -18,12 +18,12 @@ void IncludeWriter::apply(std::ostream& stream) const {
 	stream << "#include " << argOpen << file << argClose << "\n";
 }
 
-auto IncludeWriter::getTypeArgEncloser(IncludeType type)
+auto IncludeWriter::getTypeArgEncloser(IncludeMode type)
 	-> std::pair<std::string, std::string> {
 	switch (type) {
-		case IncludeType::System:
+		case IncludeMode::System:
 			return {"<", ">"};
-		case IncludeType::Custom:
+		case IncludeMode::Custom:
 			return {"\"", "\""};
 		default:
 			UNREACHABLE();

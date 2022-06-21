@@ -6,7 +6,7 @@
 
 #include "util/tree/nodeBase.hpp"
 
-namespace kodgen::tree {
+namespace mapr::tree {
 
 template<typename ValueT>
 class ValueNode : public NodeBase {
@@ -31,4 +31,4 @@ class ValueNode : public NodeBase {
 		return os << "ValueNode(" << value << ")";
 	}
 };
-}  // namespace kodgen::tree
+}  // namespace mapr::tree

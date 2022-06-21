@@ -8,6 +8,6 @@ prefix/
 CMakeLists.txt.user
 CMakeUserPresets.json
 project-include-after.cmake
-sample.*
+samples/simple/simple.hpp
 /tools/report.json
 out/

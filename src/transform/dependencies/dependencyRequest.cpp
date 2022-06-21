@@ -4,11 +4,20 @@
 
 #include "dependencyRequest.hpp"
 
-using kodgen::transform::DependencyRequest;
+using mapr::transform::DependencyRequest;
 
 DependencyRequest::DependencyRequest(DependencyKind kind)
-	: kind(kind) {}
+	: kind(kind)
+	, retention(DependencyRetention::Instant) {}
 
 auto DependencyRequest::getKind() const -> DependencyKind {
 	return kind;
+}
+
+auto DependencyRequest::getRetention() const -> DependencyRetention {
+	return retention;
+}
+
+void DependencyRequest::setRetention(DependencyRetention dependencyRetention) {
+	retention = dependencyRetention;
 }

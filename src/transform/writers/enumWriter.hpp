@@ -9,7 +9,7 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class EnumWriter : public WriterBase {
 	std::unique_ptr<WriterBase> name;
@@ -23,4 +23,4 @@ class EnumWriter : public WriterBase {
 	auto operator<<(std::unique_ptr<WriterBase> member) -> EnumWriter&;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

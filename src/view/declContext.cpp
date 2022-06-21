@@ -11,11 +11,11 @@
 
 #include "util/stringBuilder.hpp"
 
-using kodgen::view::AlreadyExistsException;
-using kodgen::view::DeclBase;
-using kodgen::view::DeclContext;
+using mapr::view::AlreadyExistsException;
+using mapr::view::DeclBase;
+using mapr::view::DeclContext;
 
-void DeclContext::addDeclaration(const std::shared_ptr<DeclBase>& decl) {
+void DeclContext::addDeclaration(const std::shared_ptr<const DeclBase>& decl) {
 	const auto& declName = decl->getID();
 
 	if (declarations.contains(declName)) {
@@ -26,17 +26,21 @@ void DeclContext::addDeclaration(const std::shared_ptr<DeclBase>& decl) {
 }
 
 auto DeclContext::findDeclaration(std::string_view id) const
-	-> std::shared_ptr<view::DeclBase> {
-	for (auto [name, decl] : declarations) {
-		if (name == id) {
-			return decl;
-		}
+	-> std::shared_ptr<const view::DeclBase> {
+	if (declarations.contains(std::string(id))) {
+		return declarations.at(std::string(id));
 	}
 
 	return nullptr;
 }
 
 auto DeclContext::getDeclarations() const
-	-> const std::map<std::string, std::shared_ptr<view::DeclBase>>& {
+	-> const std::map<std::string, std::shared_ptr<const view::DeclBase>>& {
 	return declarations;
+}
+void DeclContext::replaceDeclaration(
+	const std::shared_ptr<const DeclBase>& decl) {
+	auto id = decl->getID();
+
+	declarations[id] = decl;
 }

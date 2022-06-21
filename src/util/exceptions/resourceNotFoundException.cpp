@@ -6,10 +6,10 @@
 
 #include "util/stringBuilder.hpp"
 
-using kodgen::util::ResourceNotFoundException;
+using mapr::util::ResourceNotFoundException;
 
 ResourceNotFoundException::ResourceNotFoundException(
-	kodgen::util::ResourceCategory category, std::string_view name)
+	mapr::util::ResourceCategory category, std::string_view name)
 	: BaseException(std::string(StringBuilder()
                                 << "Resource '" << name << "' of type "
                                 << stringOfResourceCategory(category)

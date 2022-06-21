@@ -10,7 +10,7 @@
 
 #include "transform/dependencies/dependencyRequest.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class TypeRequest : public DependencyRequest {
 	std::shared_ptr<view::TypeBase> type;
@@ -21,4 +21,4 @@ class TypeRequest : public DependencyRequest {
 	[[nodiscard]] auto getType() const -> std::shared_ptr<view::TypeBase>;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

@@ -8,7 +8,7 @@
 
 #include "util/macro.hpp"
 
-using kodgen::transform::DefineConditionWriter;
+using mapr::transform::DefineConditionWriter;
 
 DefineConditionWriter::DefineConditionWriter(
 	std::unique_ptr<const WriterBase> condition,
@@ -22,12 +22,11 @@ DefineConditionWriter::DefineConditionWriter(
 
 auto DefineConditionWriter::ifCXX(std::unique_ptr<const WriterBase> thenBranch,
                                   std::unique_ptr<const WriterBase> elseBranch,
-                                  bool isInverted) -> DefineConditionWriter {
-	return DefineConditionWriter(
-		std::make_unique<TextWriter>("__cplusplus"),
-		std::move(thenBranch),
-		std::move(elseBranch),
-		(isInverted ? ConditionType::IfUndefined : ConditionType::IfDefined));
+                                  ConditionType type) -> DefineConditionWriter {
+	return DefineConditionWriter(std::make_unique<TextWriter>("__cplusplus"),
+	                             std::move(thenBranch),
+	                             std::move(elseBranch),
+	                             type);
 }
 
 void DefineConditionWriter::apply(std::ostream& stream) const {

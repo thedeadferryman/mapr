@@ -7,11 +7,11 @@
 #include "util/exceptions/baseException.hpp"
 #include "util/resourceLoader.hpp"
 
-namespace kodgen::util {
+namespace mapr::util {
 
 class ResourceNotFoundException : public BaseException {
   public:
 	ResourceNotFoundException(ResourceCategory category, std::string_view name);
 };
 
-}  // namespace kodgen::util
+}  // namespace mapr::util

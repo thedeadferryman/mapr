@@ -11,11 +11,14 @@
 #include "view/function/functionDecl.hpp"
 
 #include "transform/dependencies/dependencyResolver.hpp"
-#include "transform/mappers/base/mapperBase.hpp"
-#include "transform/mappers/base/mapperFactoryBase.hpp"
 #include "transform/writerStream.hpp"
 
-namespace kodgen::transform {
+#include "transform/mappers/base/mapperBase.hpp"
+#include "transform/mappers/base/mapperFactoryBase.hpp"
+
+#include "config/toolProperties.hpp"
+
+namespace mapr::transform {
 
 class SourceTransformer {
 	WriterStream& writerStream;
@@ -27,16 +30,19 @@ class SourceTransformer {
 	explicit SourceTransformer(WriterStream& wStream,
 	                           DependencyResolver declResolver);
 
-	void writeDecl(std::shared_ptr<view::DeclBase> decl);
+	void writeDecl(const std::shared_ptr<const view::DeclBase>& decl,
+	               std::string_view pipelineName = "<anonymous>");
 
 	auto resolveDependency(std::shared_ptr<DependencyRequest> dependencyId)
-		const -> std::shared_ptr<view::DeclBase>;
+		const -> std::shared_ptr<const view::DeclBase>;
 
 	void registerMapper(std::shared_ptr<MapperFactoryBase> factoryBase);
 
   private:
-	auto mapperForDecl(std::shared_ptr<view::DeclBase>)
+	auto mapperForDecl(std::shared_ptr<const view::DeclBase> decl)
 		-> std::unique_ptr<MapperBase>;
+	void writeDependency(const std::shared_ptr<DependencyRequest>& request,
+	                     std::string_view& pipelineName);
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

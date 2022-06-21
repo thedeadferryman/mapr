@@ -6,32 +6,32 @@
 
 #include "aliasType.hpp"
 
-using kodgen::view::AliasType;
+#include "util/stringBuilder.hpp"
+
+using mapr::view::AliasType;
 
 AliasType::AliasType(const clang::Qualifiers& quals,
-                     std::string_view name,
+                     QualifiedName name,
                      std::shared_ptr<TypeBase> source)
 	: TypeBase(TypeKind::Alias, quals)
 	, source(std::move(source))
 	, name(name) {}
 
-auto kodgen::view::AliasType::getSource() const
+auto AliasType::getSource() const
 	-> const std::shared_ptr<TypeBase>& {
 	return source;
 }
 
-auto kodgen::view::AliasType::getQualifiedName() const -> const std::string& {
+auto AliasType::getName() const -> const QualifiedName& {
 	return name;
 }
 
-auto kodgen::view::AliasType::getPrettyName() const -> std::string {
-	std::stringstream builder(name);
+auto AliasType::getPrettyName() const -> std::string {
+	auto builder = util::StringBuilder(name.str());
 
 	if (getQualifiers().hasConst()) {
 		builder << "const ";
 	}
 
-	builder << " /* " << source->getPrettyName() << " */";
-
-	return builder.str();
+	return builder;
 }

@@ -4,40 +4,36 @@
 
 #include "externCWriter.hpp"
 
-#include "transform/writers/blockWriter.hpp"
+#include "transform/writers/macroBlockWriter.hpp"
 
 #include "util/macro.hpp"
 
-using kodgen::transform::ExternCWriter;
+#include "transform/writers/textWriter.hpp"
 
-const ExternCWriter ExternCWriter::Inline =
-	ExternCWriter(ExternCWriter::ExternKind::Inline);
+using mapr::transform::ExternCWriter;
 
-const ExternCWriter ExternCWriter::OpenBlock =
-	ExternCWriter(ExternCWriter::ExternKind::OpenBlock);
-const ExternCWriter ExternCWriter::CloseBlock =
-	ExternCWriter(ExternCWriter::ExternKind::CloseBlock);
-
-ExternCWriter::ExternCWriter(ExternCWriter::ExternKind kind) noexcept
-	: kind(kind) {}
+ExternCWriter::ExternCWriter(std::shared_ptr<config::PipelineContext> context)
+	: context(std::move(context)) {}
 
 void ExternCWriter::apply(std::ostream& stream) const {
-	switch (kind) {  // TODO allow configuring these defines
-		case ExternKind::Inline:
-			stream << "KODGEN_EXPORT ";
-			return;
-		case ExternKind::OpenBlock:
-			stream << "KODGEN_EXPORT_BLOCK_START\n";
-			return;
-		case ExternKind::CloseBlock:
-			stream << "KODGEN_EXPORT_BLOCK_END\n";
-			return;
-		default:
-			UNREACHABLE();
-	}
+	stream << getExportSpecifier(context) << " ";
 }
 
-auto ExternCWriter::makeBlock() -> kodgen::transform::BlockWriter {
-	return BlockWriter(
-		std::unique_ptr<ExternCWriter>(new ExternCWriter(ExternKind::Inline)));
+auto ExternCWriter::makeBlock(
+	const std::shared_ptr<config::PipelineContext>& context)
+	-> MacroBlockWriter {
+	return {
+		std::make_unique<TextWriter>(getExportSpecifier(context) + "_OPEN"),
+		std::make_unique<TextWriter>(getExportSpecifier(context) + "_CLOSE")  //
+	};
+}
+
+auto ExternCWriter::getExportSpecifier(
+	const std::shared_ptr<config::PipelineContext>& context) -> std::string {
+	auto maybeSpecifier = context->readConfigVariable("exportSpecifier");
+
+	if (maybeSpecifier.has_value()) {
+		return maybeSpecifier.value();
+	}
+	UNREACHABLE();
 }

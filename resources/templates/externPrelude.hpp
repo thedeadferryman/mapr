@@ -1,9 +1,9 @@
 #ifdef __cplusplus
-#	define {externDefinePrefix}             extern "C"
-#	define {externDefinePrefix}_BLOCK_START extern "C" {{
-#	define {externDefinePrefix}_BLOCK_END   }};
+#	define {exportSpecifier} extern "C"
+#	define {exportSpecifier}_OPEN extern "C" {{
+#	define {exportSpecifier}_CLOSE }} // extern "C"
 #else
-#	define {externDefinePrefix}
-#	define {externDefinePrefix}_BLOCK_START
-#	define {externDefinePrefix}_BLOCK_END
+#	define {exportSpecifier}
+#	define {exportSpecifier}_OPEN
+#	define {exportSpecifier}_CLOSE
 #endif

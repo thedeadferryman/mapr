@@ -6,55 +6,80 @@
 
 #include "sourceTransformer.hpp"
 
+#include <llvm/Support/raw_ostream.h>
+
 #include "transform/exceptions/undefinedDeclException.hpp"
 
 #include "util/matchType.hpp"
 
-using kodgen::transform::SourceTransformer;
-using kodgen::util::MatchType;
+using mapr::transform::SourceTransformer;
 
 SourceTransformer::SourceTransformer(WriterStream& wStream,
                                      DependencyResolver declResolver)
 	: writerStream(wStream)
 	, dependencyResolver(std::move(declResolver)) {}
 
-void SourceTransformer::writeDecl(std::shared_ptr<view::DeclBase> decl) {
+void SourceTransformer::writeDecl(const std::shared_ptr<const view::DeclBase>& decl,
+                                  std::string_view pipelineName) {
 	auto declId = decl->getID();
 
 	if (writtenDecls[declId]) {
 		return;
 	}
 
-	auto mapper = mapperForDecl(std::move(decl));
+	auto mapper = mapperForDecl(decl);
 
 	if (!mapper) {
-		return;
+		DEBUG {
+			llvm::errs() << "warn: declaration of type '"
+						 << view::stringOfDeclType(decl->getDeclType())
+						 << "' falls down in pipeline '" << pipelineName
+						 << "'\n";
+			return;
+		}
 	}
 
-	for (const auto& dependencyId : mapper->checkDependencies()) {
-		auto dependency = resolveDependency(dependencyId);
+	auto deferredDependencies =
+		std::vector<std::shared_ptr<DependencyRequest>>();
 
-		if (!dependency) {
-			throw UndefinedDeclException::fromRequest(dependencyId);
-		}
-
-		if (!writtenDecls[dependency->getID()]) {
-			writeDecl(dependency);
+	for (const auto& request : mapper->checkDependencies()) {
+		if (request->getRetention() == DependencyRetention::Deferred) {
+			deferredDependencies.push_back(request);
+		} else {
+			writeDependency(request, pipelineName);
 		}
 	}
 
 	mapper->write(writerStream);
 
 	writtenDecls[declId] = true;
+
+	for (const auto& request : deferredDependencies) {
+		writeDependency(request, pipelineName);
+	}
+}
+void SourceTransformer::writeDependency(
+	const std::shared_ptr<DependencyRequest>& request,
+	std::string_view& pipelineName) {
+	auto dependency = resolveDependency(request);
+
+	if (!dependency) {
+		throw UndefinedDeclException::fromRequest(request);
+	}
+
+	if (!writtenDecls[dependency->getID()]) {
+		writeDecl(dependency, pipelineName);
+	}
 }
 
 auto SourceTransformer::resolveDependency(
 	std::shared_ptr<DependencyRequest> dependencyId) const
-	-> std::shared_ptr<view::DeclBase> {
+	-> std::shared_ptr<const view::DeclBase> {
 	return dependencyResolver.resolve(std::move(dependencyId));
 }
 
-auto SourceTransformer::mapperForDecl(std::shared_ptr<view::DeclBase> decl)
+auto SourceTransformer::mapperForDecl(
+	std::shared_ptr<const view::DeclBase> decl)
 	-> std::unique_ptr<MapperBase> {
 	for (const auto& factory : factories) {
 		if (factory->acceptsDecl(decl)) {
@@ -65,7 +90,7 @@ auto SourceTransformer::mapperForDecl(std::shared_ptr<view::DeclBase> decl)
 	return nullptr;
 }
 
-void kodgen::transform::SourceTransformer::registerMapper(
+void mapr::transform::SourceTransformer::registerMapper(
 	std::shared_ptr<MapperFactoryBase> factory) {
 	factories.emplace_back(std::move(factory));
 }

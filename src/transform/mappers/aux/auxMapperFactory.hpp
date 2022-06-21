@@ -6,17 +6,19 @@
 
 #include "transform/mappers/base/mapperFactoryBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class AuxMapperFactory : public MapperFactoryBase {
+	std::shared_ptr<config::PipelineContext> context;
+
   public:
-	AuxMapperFactory() = default;
+	explicit AuxMapperFactory(std::shared_ptr<config::PipelineContext> context);
 
 	[[nodiscard]] auto acceptsDecl(
-		const std::shared_ptr<view::DeclBase>& decl) const -> bool override;
+		const std::shared_ptr<const view::DeclBase>& decl) const -> bool override;
 
-	[[nodiscard]] auto mapperForDecl(std::shared_ptr<view::DeclBase> decl) const
+	[[nodiscard]] auto mapperForDecl(std::shared_ptr<const view::DeclBase> decl) const
 		-> std::unique_ptr<MapperBase> override;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

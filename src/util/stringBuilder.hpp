@@ -15,7 +15,7 @@
 
 #define OPERATOR_FOR(_, __, _Type) auto operator<<(_Type part)->StringBuilder&;
 
-namespace kodgen::util {
+namespace mapr::util {
 
 class StringBuilder {
 	std::stringstream builder;
@@ -30,7 +30,7 @@ class StringBuilder {
 #include "util/stringBuilderSupportedTypes.inc"  // Define supported operators
 };
 
-}  // namespace kodgen::util
+}  // namespace mapr::util
 
 #undef OPERATOR_FOR
 

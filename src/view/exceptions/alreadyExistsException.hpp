@@ -8,11 +8,11 @@
 
 #include "util/exceptions/baseException.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class AlreadyExistsException : public util::BaseException {
   public:
 	AlreadyExistsException(std::string_view msg, view::DeclType type);
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

@@ -13,9 +13,9 @@
 #include "view/types/pointerType.hpp"
 #include "view/types/referenceType.hpp"
 
-using kodgen::view::TypeBase;
+using mapr::view::TypeBase;
 
-TypeBase::TypeBase(kodgen::view::TypeKind kind,
+TypeBase::TypeBase(mapr::view::TypeKind kind,
                    const clang::Qualifiers& qualifiers)
 	: qualifiers(qualifiers)
 	, kind(kind) {}
@@ -27,3 +27,8 @@ auto TypeBase::getKind() const -> TypeKind {
 auto TypeBase::getQualifiers() const -> const clang::Qualifiers& {
 	return qualifiers;
 }
+
+auto TypeBase::isVoid() const -> bool {
+	return false;
+}
+

@@ -10,21 +10,33 @@
 #include <clang/AST/Type.h>
 
 #include "view/declBase.hpp"
+#include "view/name/qualifiedName.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class EnumDecl;
 
 class EnumMemberDecl : public DeclBase {
-	std::weak_ptr<EnumDecl> owner;
+	std::weak_ptr<const EnumDecl> owner;
+	std::string value;
+	std::shared_ptr<SourceLoc> location;
+	QualifiedName name;
 
   public:
-	EnumMemberDecl(const std::string& id,
-	               std::shared_ptr<EnumDecl> owner);
+	EnumMemberDecl(const QualifiedName& name,
+	               const std::shared_ptr<const EnumDecl>& owner,
+	               std::string_view value,
+	               std::shared_ptr<SourceLoc> location);
 
-	[[nodiscard]] auto getOwner() -> std::shared_ptr<EnumDecl>;
+	[[nodiscard]] auto getOwner() const -> std::shared_ptr<const EnumDecl>;
 
-	[[nodiscard]] auto getName() -> std::string;
+	[[nodiscard]] auto getValue() const -> std::string;
+
+	[[nodiscard]] auto getName() const -> std::string;
+
+	auto getLocation() const -> std::shared_ptr<SourceLoc> override;
+
+	auto getQualifiedName() const -> QualifiedName override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

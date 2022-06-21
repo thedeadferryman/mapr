@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class SequentialWriter : public WriterBase {
 	std::vector<std::unique_ptr<WriterBase>> writers;
@@ -18,11 +18,12 @@ class SequentialWriter : public WriterBase {
   public:
 	[[nodiscard]] static auto joinToPtr(
 		std::vector<std::unique_ptr<WriterBase>> writers,
-		std::function<std::unique_ptr<WriterBase>()> glue) -> std::unique_ptr<SequentialWriter>;
+		std::function<std::unique_ptr<WriterBase>()> glue)
+		-> std::unique_ptr<SequentialWriter>;
 
 	explicit SequentialWriter(std::vector<std::unique_ptr<WriterBase>> writers);
 
 	void apply(std::ostream& stream) const override;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

@@ -1,13 +1,16 @@
-#/usr/bin/env ruby
+#!/usr/bin/env ruby
 
 require "pathname"
 require "json"
 require_relative "commons"
 
-ROOT_DIR = File.realpath ARGV.shift # arg0 - source resolution root
+root_dir = ARGV.shift  # arg0 - source resolution root
+
+raise 'Root dir not specified!' if root_dir.nil?
+
+ROOT_DIR = File.realpath root_dir
 REPORT_FILE = ARGV.shift
 
-raise 'Root dir not specified!' if ROOT_DIR.nil?
 raise 'Report destination not specified!' if REPORT_FILE.nil?
 
 modules = []
@@ -25,7 +28,9 @@ end
 
 modnames = modules.pluck(:name).join('|')
 
-inc_regex = %r{\#include[\s]*\<((#{modnames})\/.*)\>}
+pp modnames
+
+inc_regex = %r{\#include[\s]*[<"]((#{modnames})\/.*)[>"]}
 
 modules = modules.map do |mod|
   depends_on = []

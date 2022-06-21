@@ -7,7 +7,7 @@
 #include "view/declBase.hpp"
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class TypeDecl : public view::DeclBase {
 	std::shared_ptr<view::TypeBase> type;
@@ -15,7 +15,12 @@ class TypeDecl : public view::DeclBase {
   public:
 	explicit TypeDecl(std::shared_ptr<view::TypeBase> type);
 
-	[[nodiscard]] auto getType() -> std::shared_ptr<view::TypeBase>;
+	[[nodiscard]] auto getType() const -> std::shared_ptr<view::TypeBase>;
+
+	[[nodiscard]] auto getLocation() const
+		-> std::shared_ptr<view::SourceLoc> override;
+
+	[[nodiscard]] auto getQualifiedName() const -> view::QualifiedName override;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

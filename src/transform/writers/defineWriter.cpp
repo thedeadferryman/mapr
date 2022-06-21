@@ -8,8 +8,8 @@
 
 #include "util/collectionUtils.hpp"
 
-using kodgen::transform::DefineWriter;
-using kodgen::util::CollectionUtils;
+using mapr::transform::DefineWriter;
+using mapr::util::CollectionUtils;
 
 DefineWriter::DefineWriter(
 	std::unique_ptr<WriterBase> idWriter,

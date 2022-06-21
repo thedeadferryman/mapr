@@ -6,16 +6,21 @@
 
 #include <clang/AST/DeclBase.h>
 
-#include "view/namespacedName.hpp"
+#include "view/name/qualifiedName.hpp"
 
-namespace kodgen::match {
+namespace mapr::match {
 
 class NameResolver {
   public:
 	NameResolver() = delete;
 
-	static auto resolveDeclName(const clang::DeclContext* decl)
-		-> kodgen::view::NamespacedName;
+	[[nodiscard]] static auto resolveDeclName(const clang::DeclContext* decl,
+	                                          const clang::ASTContext* context)
+		-> view::QualifiedName;
+
+	 [[nodiscard]] static auto resolveNamedDeclName(
+		const clang::NamedDecl* decl, const clang::ASTContext* context)
+		-> view::QualifiedName;
 };
 
-}  // namespace kodgen::match
+}  // namespace mapr::match

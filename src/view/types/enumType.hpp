@@ -4,25 +4,27 @@
 
 #pragma once
 
-#include "view/namespacedName.hpp"
+#include "view/name/qualifiedName.hpp"
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 S_ENUM(EnumKind, Scoped, Leaking);
 
 class EnumType : public TypeBase {
-	NamespacedName name;
+	QualifiedName name;
 	bool scoped;
 
   public:
-	EnumType(const clang::Qualifiers& quals, NamespacedName name, bool scoped);
+	EnumType(const clang::Qualifiers& quals, QualifiedName name, bool scoped);
 
-	[[nodiscard]] auto getName() -> const NamespacedName&;
+	[[nodiscard]] auto getName() -> const QualifiedName&;
+
+	void setName(QualifiedName newName);
 
 	[[nodiscard]] auto isScoped() -> bool;
 
 	auto getPrettyName() const -> std::string override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

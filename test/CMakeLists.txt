@@ -2,10 +2,10 @@
 # depends on being added from it, i.e. the testing is done only from the build
 # tree and is not feasible from an install location
 
-project(kodgenTests LANGUAGES CXX)
+project(maprTests LANGUAGES CXX)
 
-add_executable(kodgen_test src/kodgen_test.cpp)
-target_link_libraries(kodgen_test PRIVATE kodgen-base)
-target_compile_features(kodgen_test PRIVATE cxx_std_20)
+add_executable(mapr_test src/mapr_test.cpp)
+target_link_libraries(mapr_test PRIVATE mapr-base)
+target_compile_features(mapr_test PRIVATE cxx_std_20)
 
-add_test(NAME kodgen_test COMMAND kodgen_test)
+add_test(NAME mapr_test COMMAND mapr_test)

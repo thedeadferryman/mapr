@@ -6,9 +6,9 @@
 
 #include <clang/ASTMatchers/ASTMatchers.h>
 
-#include "match/matcherBase.hpp"
+#include "match/matchers/matcherBase.hpp"
 
-namespace kodgen::match {
+namespace mapr::match {
 
 class FunctionMatcher : public MatcherBase {
   public:
@@ -21,4 +21,4 @@ class FunctionMatcher : public MatcherBase {
 		clang::ast_matchers::MatchFinder* matchFinder) override;
 };
 
-}  // namespace kodgen::match
+}  // namespace mapr::match

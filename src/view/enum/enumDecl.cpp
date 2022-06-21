@@ -4,13 +4,17 @@
 
 #include "enumDecl.hpp"
 
-using kodgen::view::EnumDecl;
+#include "view/name/qualifiedName.hpp"
 
-EnumDecl::EnumDecl(std::shared_ptr<EnumType> type,
+using mapr::view::EnumDecl;
+
+EnumDecl::EnumDecl(const std::shared_ptr<EnumType>& type,
+                   std::shared_ptr<SourceLoc> location,
                    std::vector<std::shared_ptr<Member>> members)
 	: DeclBase(type->getName().str(), DeclType::Enum)
 	, type(type)
-	, members(std::move(members)) {}
+	, members(std::move(members))
+	, location(std::move(location)) {}
 
 auto EnumDecl::getType() const -> const std::shared_ptr<EnumType>& {
 	return type;
@@ -23,4 +27,11 @@ auto EnumDecl::getMembers() const
 
 void EnumDecl::addMember(const std::shared_ptr<Member>& member) {
 	members.push_back(member);
+}
+auto EnumDecl::getLocation() const -> std::shared_ptr<SourceLoc> {
+	return location;
+}
+
+auto EnumDecl::getQualifiedName() const -> QualifiedName {
+	return type->getName();
 }

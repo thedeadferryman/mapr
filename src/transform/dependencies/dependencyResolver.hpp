@@ -14,22 +14,27 @@
 
 #include "util/resourceLoader.hpp"
 
-namespace kodgen::transform {
+#include "config/pipelineContext.hpp"
+
+namespace mapr::transform {
 
 class DependencyResolver {
-	std::shared_ptr<view::DeclContext> context;
-	util::ResourceLoader loader;
+	std::shared_ptr<view::DeclContext> declContext;
+	std::shared_ptr<config::PipelineContext> context;
+	std::shared_ptr<util::ResourceLoader> loader;
 
   public:
-	explicit DependencyResolver(std::shared_ptr<view::DeclContext> context,
-	                            util::ResourceLoader loader);
+	DependencyResolver(
+		std::shared_ptr<view::DeclContext> declContext,
+		std::shared_ptr<config::PipelineContext> context,
+		std::shared_ptr<util::ResourceLoader> loader);
 
 	[[nodiscard]] auto resolve(std::shared_ptr<DependencyRequest> request) const
-		-> std::shared_ptr<view::DeclBase>;
+		-> std::shared_ptr<const view::DeclBase>;
 
   private:
 	[[nodiscard]] auto resolveAux(AuxDependencyId dependencyId) const
-		-> std::shared_ptr<AuxDecl>;
+		-> std::shared_ptr<const AuxDecl>;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

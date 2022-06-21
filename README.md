@@ -1,6 +1,6 @@
-# kodgen
+# mapr
 
-This is the kodgen project.
+This is the mapr project.
 
 # Building and installing
 

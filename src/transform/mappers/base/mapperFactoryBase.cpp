@@ -6,4 +6,4 @@
 
 #include "transform/sourceTransformer.hpp"
 
-using kodgen::transform::MapperFactoryBase;
+using mapr::transform::MapperFactoryBase;

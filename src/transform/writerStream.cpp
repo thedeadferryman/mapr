@@ -6,17 +6,17 @@
 
 #include "transform/writers/writerBase.hpp"
 
-kodgen::transform::WriterStream::WriterStream(std::ostream& targetStream)
+mapr::transform::WriterStream::WriterStream(std::ostream& targetStream)
 	: oStream(targetStream) {}
 
-void kodgen::transform::WriterStream::applyWriter(
-	const kodgen::transform::WriterBase& writer) {
+void mapr::transform::WriterStream::applyWriter(
+	const mapr::transform::WriterBase& writer) {
 	writer.apply(oStream);
 }
 
-auto kodgen::transform::WriterStream::operator<<(
-	const kodgen::transform::WriterBase& writer)
-	-> kodgen::transform::WriterStream& {
+auto mapr::transform::WriterStream::operator<<(
+	const mapr::transform::WriterBase& writer)
+	-> mapr::transform::WriterStream& {
 	applyWriter(writer);
 
 	return *this;

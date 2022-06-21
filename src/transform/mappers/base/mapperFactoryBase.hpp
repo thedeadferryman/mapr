@@ -6,7 +6,7 @@
 
 #include "transform/mappers/base/mapperBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class SourceTransformer;
 
@@ -28,11 +28,11 @@ class MapperFactoryBase {
 	virtual ~MapperFactoryBase() = default;
 
 	[[nodiscard]] virtual auto acceptsDecl(
-		const std::shared_ptr<view::DeclBase>& decl) const -> bool = 0;
+		const std::shared_ptr<const view::DeclBase>& decl) const -> bool = 0;
 
 	[[nodiscard]] virtual auto mapperForDecl(
-		std::shared_ptr<view::DeclBase> decl) const
+		std::shared_ptr<const view::DeclBase> decl) const
 		-> std::unique_ptr<MapperBase> = 0;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

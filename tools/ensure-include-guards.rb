@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require "pathname"
 require_relative "commons"
 
@@ -19,8 +21,8 @@ if ARGV.size < 2
 end
 
 ROOT_DIR = File.realpath ARGV.shift # arg0 - source resolution root
-PROJECT_NAME = ARGV.shift # arg1 - run mode
-RUN_MODE = ARGV.shift || "check" # arg1 - run mode
+PROJECT_NAME = ARGV.shift # arg1 - project name
+RUN_MODE = ARGV.shift || "check" # arg2 - run mode
 
 ensure_mode(RUN_MODE) { help }
 

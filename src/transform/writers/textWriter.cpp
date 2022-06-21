@@ -4,9 +4,11 @@
 
 #include "textWriter.hpp"
 
-using kodgen::transform::TextWriter;
+using mapr::transform::TextWriter;
 
-TextWriter::TextWriter(std::string_view content)
+TextWriter const TextWriter::Newline = TextWriter("\n");
+
+TextWriter::TextWriter(std::string_view content) noexcept
 	: content(content) {}
 
 void TextWriter::apply(std::ostream& stream) const {

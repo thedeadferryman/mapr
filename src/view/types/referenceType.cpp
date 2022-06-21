@@ -6,7 +6,7 @@
 
 #include "referenceType.hpp"
 
-using kodgen::view::ReferenceType;
+using mapr::view::ReferenceType;
 
 ReferenceType::ReferenceType(const clang::Qualifiers& quals,
                              std::shared_ptr<TypeBase> referenced,

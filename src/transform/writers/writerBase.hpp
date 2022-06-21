@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include <memory>
 #include <ostream>
 
 #include "transform/writerStream.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class WriterBase {
   public:
@@ -23,6 +24,12 @@ class WriterBase {
 	virtual ~WriterBase() = default;
 
 	virtual void apply(std::ostream& stream) const = 0;
+
 };
 
-}  // namespace kodgen::getName
+auto operator<<(std::ostream& stream, const WriterBase& writer)
+	-> decltype(stream);
+auto operator<<(std::ostream& stream, const std::unique_ptr<WriterBase>& writer)
+	-> decltype(stream);
+
+}  // namespace mapr::transform

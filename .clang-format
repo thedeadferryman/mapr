@@ -89,12 +89,16 @@ IncludeCategories:
     Priority: 5
   - Regex: '^[<"](util).+\.h(pp)?[>"]'
     Priority: 7
-  - Regex: '^<.+\.h(pp)?>'
+  - Regex: '^[<"](app).+\.h(pp)?[>"]'
     Priority: 8
-  - Regex: '^<.*'
+  - Regex: '^[<"](config).+\.h(pp)?[>"]'
     Priority: 9
+  - Regex: '^<.+\.h(pp)?>'
+    Priority: 120
+  - Regex: '^<.*'
+    Priority: 140
   - Regex: '.*'
-    Priority: 10
+    Priority: 160
 IncludeIsMainRegex: ''
 IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true

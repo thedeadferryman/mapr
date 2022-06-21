@@ -6,8 +6,8 @@
 
 #include "util/collectionUtils.hpp"
 
-using kodgen::transform::IEEWriter;
-using kodgen::util::CollectionUtils;
+using mapr::transform::IEEWriter;
+using mapr::util::CollectionUtils;
 
 IEEWriter::IEEWriter(std::unique_ptr<WriterBase> expr,
                      std::vector<std::unique_ptr<WriterBase>> args)

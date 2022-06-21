@@ -6,7 +6,7 @@
 
 #include "util/stringBuilder.hpp"
 
-using kodgen::transform::C11GenericWriter;
+using mapr::transform::C11GenericWriter;
 
 C11GenericWriter::C11GenericWriter(std::unique_ptr<WriterBase> defaultCase,
                                    std::unique_ptr<WriterBase> condition,

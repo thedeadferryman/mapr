@@ -6,26 +6,26 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
-enum class IncludeType {
+enum class IncludeMode {
 	System,
 	Custom
 };
 
 class IncludeWriter : public WriterBase {
 	std::string file;
-	IncludeType type;
+	IncludeMode type;
 
   public:
 	IncludeWriter(std::string_view file,
-	              IncludeType type = IncludeType::System);
+	              IncludeMode type = IncludeMode::System);
 
 	void apply(std::ostream& stream) const override;
 
   private:
-	[[nodiscard]] static auto getTypeArgEncloser(IncludeType type)
+	[[nodiscard]] static auto getTypeArgEncloser(IncludeMode type)
 		-> std::pair<std::string, std::string>;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

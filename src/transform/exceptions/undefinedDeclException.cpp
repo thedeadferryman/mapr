@@ -10,26 +10,26 @@
 #include "util/matchType.hpp"
 #include "util/stringBuilder.hpp"
 
-using kodgen::transform::UndefinedDeclException;
-using kodgen::util::MatchType;
+using mapr::transform::UndefinedDeclException;
+using mapr::util::MatchType;
 
 auto UndefinedDeclException::fromRequest(
 	const std::shared_ptr<DependencyRequest>& request)
 	-> UndefinedDeclException {
 	auto message = MatchType::matchType<std::string>(
 		request,  //
-		[=](const std::shared_ptr<DeclRequest>& declRequest) -> std::string {
+		[](const std::shared_ptr<DeclRequest>& declRequest) -> std::string {
 			return util::StringBuilder()
 				<< "Trying to reference undefined declaration '"
 				<< declRequest->getDeclarationId() << "'";
 		},
-		[=](const std::shared_ptr<AuxRequest>& auxRequest) -> std::string {
+		[](const std::shared_ptr<AuxRequest>& auxRequest) -> std::string {
 			return util::StringBuilder()
 				<< "Trying to reference undefined internal resource '"
 				<< stringOfAuxDependencyId(auxRequest->getDependencyId())
 				<< "'";
 		},
-		[=](const std::shared_ptr<TypeRequest>& typeRequest) -> std::string {
+		[](const std::shared_ptr<TypeRequest>& typeRequest) -> std::string {
 			return util::StringBuilder()
 				<< "Trying to reference undefined type '"
 				<< typeRequest->getType()->getPrettyName() << "'";

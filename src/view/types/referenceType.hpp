@@ -6,7 +6,7 @@
 
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 enum class ReferenceKind
 {
@@ -31,4 +31,4 @@ class ReferenceType : public TypeBase {
 	[[nodiscard]] auto getPrettyName() const -> std::string override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

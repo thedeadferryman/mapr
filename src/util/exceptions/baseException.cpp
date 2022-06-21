@@ -4,7 +4,7 @@
 
 #include "baseException.hpp"
 
-using kodgen::util::BaseException;
+using mapr::util::BaseException;
 
 BaseException::BaseException(std::string_view message)
 	: std::runtime_error(std::string(message)) {}

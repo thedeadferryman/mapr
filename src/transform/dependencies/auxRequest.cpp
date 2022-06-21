@@ -4,7 +4,7 @@
 
 #include "auxRequest.hpp"
 
-using kodgen::transform::AuxRequest;
+using mapr::transform::AuxRequest;
 
 AuxRequest::AuxRequest(AuxDependencyId id)
 	: DependencyRequest(DependencyKind::Aux)

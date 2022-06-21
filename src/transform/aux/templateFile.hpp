@@ -5,30 +5,27 @@
 #pragma once
 
 #include <filesystem>
+#include <unordered_map>
 
 #include "transform/aux/auxDecl.hpp"
 
 #include "util/resourceLoader.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class TemplateFile : public AuxDecl {
-  private:
-	std::unique_ptr<std::istream> templateStream;
-	std::string templateString;
-	bool isLoaded;
-
-	static constexpr auto BUF_SIZE = 256;
+	std::shared_ptr<util::ResourceLoader> loader;
 
   public:
-	explicit TemplateFile(const util::ResourceLoader& loader,
-	                      std::string_view name);
+	TemplateFile(std::shared_ptr<util::ResourceLoader> loader,
+	             std::string_view name);
 
-	[[nodiscard]] auto replaceWith(/* TODO implement config context */)
+	[[nodiscard]] auto render(
+		const std::unordered_map<std::string, std::string>& variables) const
 		-> std::string;
 
   private:
-	[[nodiscard]] auto loadStreamContents() -> std::string_view;
+	[[nodiscard]] auto loadStreamContents() const -> std::string;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

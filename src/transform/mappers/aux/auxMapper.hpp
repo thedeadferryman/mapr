@@ -5,15 +5,18 @@
 #pragma once
 
 #include "transform/aux/auxDecl.hpp"
+
 #include "transform/mappers/base/mapperBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class AuxMapper : public MapperBase {
-	std::shared_ptr<AuxDecl> decl;
+	std::shared_ptr<const AuxDecl> decl;
+	std::shared_ptr<config::PipelineContext> context;
 
   public:
-	explicit AuxMapper(std::shared_ptr<AuxDecl> decl);
+	explicit AuxMapper(std::shared_ptr<const AuxDecl> decl,
+	                   std::shared_ptr<config::PipelineContext> context);
 
 	[[nodiscard]] auto checkDependencies() const
 		-> std::vector<std::shared_ptr<DependencyRequest>> override;
@@ -21,4 +24,4 @@ class AuxMapper : public MapperBase {
 	void write(WriterStream& writer) override;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

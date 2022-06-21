@@ -12,7 +12,7 @@
 
 #include "transform/dependencies/dependencyResolver.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class WriterStream;
 
@@ -33,4 +33,4 @@ class MapperBase {
 	virtual void write(WriterStream& writer) = 0;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

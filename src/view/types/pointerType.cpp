@@ -6,8 +6,11 @@
 
 #include "pointerType.hpp"
 
-using kodgen::view::PointerType;
-using kodgen::view::TypeBase;
+using mapr::view::PointerType;
+using mapr::view::TypeBase;
+
+PointerType::PointerType(std::shared_ptr<TypeBase> pointee)
+	: PointerType(clang::Qualifiers(), std::move(pointee)) {}
 
 PointerType::PointerType(const clang::Qualifiers& quals,
                          std::shared_ptr<TypeBase> pointee)
@@ -17,7 +20,6 @@ PointerType::PointerType(const clang::Qualifiers& quals,
 auto PointerType::getPointee() const -> const std::shared_ptr<TypeBase>& {
 	return pointee;
 }
-
 auto PointerType::getPrettyName() const -> std::string {
 	std::stringstream builder;
 

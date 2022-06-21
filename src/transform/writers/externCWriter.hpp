@@ -7,30 +7,25 @@
 #include "transform/writers/blockWriter.hpp"
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+#include "config/pipelineContext.hpp"
+
+#include "transform/writers/macroBlockWriter.hpp"
+
+namespace mapr::transform {
 
 class ExternCWriter : public WriterBase {
-  private:
-	enum class ExternKind {
-		OpenBlock,
-		CloseBlock,
-		Inline
-	};
+	std::shared_ptr<config::PipelineContext> context;
 
   public:
-	static const ExternCWriter Inline;
-	[[deprecated]] static const ExternCWriter OpenBlock;
-	[[deprecated]] static const ExternCWriter CloseBlock;
+	static auto makeBlock(const std::shared_ptr<config::PipelineContext>& context)
+		-> mapr::transform::MacroBlockWriter;
 
-	static auto makeBlock() -> BlockWriter;
+	explicit ExternCWriter(std::shared_ptr<config::PipelineContext> context);
 
-  private:
-	ExternKind kind;
-
-	explicit ExternCWriter(ExternKind kind = ExternKind::Inline) noexcept;
-
-  public:
 	void apply(std::ostream& stream) const override;
+
+  private:
+	[[nodiscard]] static auto getExportSpecifier(const std::shared_ptr<config::PipelineContext>& context) -> std::string;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

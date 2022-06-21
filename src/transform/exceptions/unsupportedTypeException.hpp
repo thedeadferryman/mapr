@@ -9,7 +9,7 @@
 
 #include "util/exceptions/baseException.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class UnsupportedTypeException : public util::BaseException {
   public:
@@ -19,4 +19,4 @@ class UnsupportedTypeException : public util::BaseException {
 	UnsupportedTypeException(view::TypeKind kind, std::string_view typeName);
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

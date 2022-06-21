@@ -4,7 +4,7 @@
 
 #include "typeRequest.hpp"
 
-using kodgen::transform::TypeRequest;
+using mapr::transform::TypeRequest;
 
 TypeRequest::TypeRequest(std::shared_ptr<view::TypeBase> type)
 	: DependencyRequest(DependencyKind::Type)

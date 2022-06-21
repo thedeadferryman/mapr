@@ -3,7 +3,7 @@
 require "pathname"
 require_relative "commons"
 
-INC_REGEX = %r{#include[\s]*["<](.*)[">]}
+INC_REGEX = %r{^[ \t]*#[ \t]*include[\s]*["<](.*)[">]}
 
 # region args
 

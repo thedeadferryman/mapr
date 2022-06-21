@@ -10,8 +10,8 @@
 
 #include "util/exceptions/resourceNotFoundException.hpp"
 
-using kodgen::util::ResourceCategory;
-using kodgen::util::ResourceLoader;
+using mapr::util::ResourceCategory;
+using mapr::util::ResourceLoader;
 
 namespace FS = std::filesystem;
 
@@ -20,6 +20,8 @@ constexpr auto mapCategorySubdir(ResourceCategory category)
 	switch (category) {
 		case ResourceCategory::TemplateFile:
 			return "templates";
+		default:
+			UNREACHABLE();
 	}
 }
 
@@ -28,6 +30,8 @@ constexpr auto mapCategoryFileMode(ResourceCategory category)
 	switch (category) {
 		case ResourceCategory::TemplateFile:
 			return std::ios::in;
+		default:
+			UNREACHABLE();
 	}
 }
 

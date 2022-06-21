@@ -4,7 +4,7 @@
 
 #include "declRequest.hpp"
 
-using kodgen::transform::DeclRequest;
+using mapr::transform::DeclRequest;
 
 DeclRequest::DeclRequest(std::string_view declId)
 	: DependencyRequest(DependencyKind::Decl)

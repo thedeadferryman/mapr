@@ -6,7 +6,7 @@
 
 #include "util/stringBuilder.hpp"
 
-using kodgen::transform::UnsupportedTypeException;
+using mapr::transform::UnsupportedTypeException;
 
 UnsupportedTypeException::UnsupportedTypeException(
 	view::BuiltinType::Variant variant, std::string displayName)
@@ -16,7 +16,7 @@ UnsupportedTypeException::UnsupportedTypeException(
 }
 
 UnsupportedTypeException::UnsupportedTypeException(  //
-	kodgen::view::TypeKind kind,
+	mapr::view::TypeKind kind,
 	std::string_view typeName)
 	: BaseException(std::string(  //
 		util::StringBuilder("Unsupported type ")

@@ -8,13 +8,15 @@
 
 #include "transform/mappers/base/mapperBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class EnumMapper : public MapperBase {
-	std::shared_ptr<view::EnumDecl> enumDecl;
+	std::shared_ptr<const view::EnumDecl> enumDecl;
+	std::shared_ptr<config::PipelineContext> context;
 
   public:
-	EnumMapper(std::shared_ptr<view::EnumDecl> enumDecl);
+	EnumMapper(std::shared_ptr<const view::EnumDecl> enumDecl,
+	           std::shared_ptr<config::PipelineContext> context);
 
 	auto checkDependencies() const
 		-> std::vector<std::shared_ptr<DependencyRequest>> override;
@@ -24,7 +26,8 @@ class EnumMapper : public MapperBase {
   private:
 	[[nodiscard]] auto
 	getMemberName(  // TODO: think of extracting this logic to a separate module
-		const std::shared_ptr<view::EnumMemberDecl>& member) const -> std::string;
+		const std::shared_ptr<const view::EnumMemberDecl>& member) const
+		-> std::string;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

@@ -4,7 +4,7 @@
 
 #include "blockWriter.hpp"
 
-using kodgen::transform::BlockWriter;
+using mapr::transform::BlockWriter;
 
 BlockWriter::BlockWriter(std::unique_ptr<WriterBase> prelude, bool semicolon)
 	: prelude(std::move(prelude))
@@ -33,7 +33,7 @@ void BlockWriter::apply(std::ostream& stream) const {
 	}
 }
 
-auto BlockWriter::operator<<(std::unique_ptr<WriterBase>&& writer)
+auto BlockWriter::operator<<(std::unique_ptr<WriterBase> writer)
 	-> BlockWriter& {
 	body.emplace_back(std::move(writer));
 

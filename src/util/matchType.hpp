@@ -12,58 +12,106 @@
 #include <boost/preprocessor/variadic/to_seq.hpp>
 #include <boost/type_traits/function_traits.hpp>
 
-namespace kodgen::util {
+namespace mapr::util {
 
 class MatchType {
+	template<int32_t Ordinal, typename Head, typename... Args>
+	struct GetArgI {
+		using Type = GetArgI<Ordinal - 1, Args...>;
+	};
+
+	template<typename Head, typename... Args>
+	struct GetArgI<0, Head, Args...> {
+		using Type = Head;
+	};
+
+	template<int32_t Ordinal, typename... Args>
+	using GetArg = typename GetArgI<Ordinal, Args...>::Type;
+
+	template<typename... Args>
+	struct ParamPack {
+		template<int32_t Ordinal>
+		using At = GetArg<Ordinal, Args...>;
+	};
+
 	template<typename Type>
 	struct RemoveClass {};
 
 	template<typename Class, typename Ret, typename... Args>
 	struct RemoveClass<Ret (Class::*)(Args...)> {
-		using Type = Ret(Args...);
+		using Signature = Ret(Args...);
+		using Arguments = ParamPack<Args...>;
 	};
+
 	template<typename Class, typename Ret, typename... Args>
 	struct RemoveClass<Ret (Class::*)(Args...) const> {
-		using Type = Ret(Args...);
+		using Signature = Ret(Args...);
+		using Arguments = ParamPack<Args...>;
 	};
 
 	template<typename Func>
 	struct ExtractSignatureI {
-		using Type = typename RemoveClass<
-			decltype(&std::remove_reference<Func>::type::operator())>::Type;
+		using ClassRemoved = RemoveClass<
+			decltype(&std::remove_reference<Func>::type::operator())>;
+		using Signature = typename ClassRemoved::Signature;
+		using Arguments = typename ClassRemoved::Arguments;
 	};
+
 	template<typename Ret, typename... Args>
 	struct ExtractSignatureI<Ret(Args...)> {
-		using Type = Ret(Args...);
+		using Signature = Ret(Args...);
+		using Arguments = ParamPack<Args...>;
 	};
 
 	template<typename Ret, typename... Args>
 	struct ExtractSignatureI<Ret (*)(Args...)> {
-		using Type = Ret(Args...);
+		using Signature = Ret(Args...);
+		using Arguments = ParamPack<Args...>;
 	};
 
 	template<typename Ret, typename... Args>
 	struct ExtractSignatureI<Ret (&)(Args...)> {
-		using Type = Ret(Args...);
+		using Signature = Ret(Args...);
+		using Arguments = ParamPack<Args...>;
 	};
 
+	template<typename Tp>
+	struct NakedTypeI {
+		using Type = typename std::remove_reference<Tp>::type;
+	};
+
+	template<typename Tp>
+	struct NakedTypeI<std::shared_ptr<Tp>> {
+		using Type = Tp;
+	};
+
+	template<typename Tp>
+	struct NakedTypeI<const std::shared_ptr<Tp>> {
+		using Type = Tp;
+	};
+
+	template<typename Tp>
+	struct NakedTypeI<const std::shared_ptr<Tp>&> {
+		using Type = Tp;
+	};
+
+	template<typename Tp>
+	struct NakedTypeI<std::shared_ptr<Tp>&> {
+		using Type = Tp;
+	};
+
+	template<typename Type>
+	using NakedType = typename NakedTypeI<Type>::Type;
+
 	template<typename Func>
-	using ExtractSignature = typename ExtractSignatureI<Func>::Type;
+	using ExtractSignature = typename ExtractSignatureI<Func>::Signature;
 
-	template<typename Result, typename Base, typename Type>
-	static auto matchTypeHelper(
-		const std::shared_ptr<Base>& base,
-		std::function<Result(std::shared_ptr<Type>)> /*unused*/)
-		-> std::shared_ptr<Type> {
-		return std::dynamic_pointer_cast<Type>(base);
-	}
+	template<typename Func>
+	using ExtractArguments = typename ExtractSignatureI<Func>::Arguments;
 
-	template<typename Result, typename Base, typename Type>
-	static auto matchTypeHelper(
-		const std::shared_ptr<Base>& base,
-		std::function<Result(const std::shared_ptr<Type>&)> /*unused*/)
-		-> std::shared_ptr<Type> {
-		return std::dynamic_pointer_cast<Type>(base);
+	template<typename Type, typename Base>
+	static auto matchTypeHelper(const std::shared_ptr<Base>& base) -> typename std::remove_reference<Type>::type {
+		return std::dynamic_pointer_cast<NakedType<Type>>(base);
 	}
 
 	template<typename Base, typename Type>
@@ -98,10 +146,10 @@ class MatchType {
 	static auto matchType(std::shared_ptr<Base> base,
 	                      Branch&& branch,
 	                      RestBranches&&... restBranches) -> Result {
-		using Signature = ExtractSignature<Branch>;
+		using BranchMatchedType =
+			typename ExtractArguments<Branch>::template At<0>;
 
-		if (auto matched = matchTypeHelper<Result>(
-				base, static_cast<std::function<Signature>>(branch))) {
+		if (auto matched = matchTypeHelper<BranchMatchedType, Base>(base)) {
 			return branch(matched);
 		}
 
@@ -129,9 +177,7 @@ class MatchType {
 	}
 
 	template<typename Base>
-	static void switchType(Base /*ignored*/) {
-		UNREACHABLE();
-	}
+	static void switchType(Base /*ignored*/) {}
 };
 
-}  // namespace kodgen::util
+}  // namespace mapr::util

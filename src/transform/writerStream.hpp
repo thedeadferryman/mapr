@@ -6,7 +6,7 @@
 
 #include <ostream>
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class WriterBase;
 
@@ -21,4 +21,4 @@ class WriterStream {
 	auto operator<<(const WriterBase& writer) -> WriterStream&;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

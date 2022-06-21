@@ -11,10 +11,10 @@ using clang::ast_matchers::isExpansionInFileMatching;
 using clang::ast_matchers::typedefNameDecl;
 using clang::ast_matchers::internal::Matcher;
 
-using kodgen::view::AliasType;
-using kodgen::view::TypeBase;
+using mapr::view::AliasType;
+using mapr::view::TypeBase;
 
-using kodgen::match::TypedefMatcher;
+using mapr::match::TypedefMatcher;
 
 TypedefMatcher::TypedefMatcher(std::shared_ptr<view::DeclContext> context)
 	: MatcherBase(std::move(context)) {}
@@ -22,7 +22,7 @@ TypedefMatcher::TypedefMatcher(std::shared_ptr<view::DeclContext> context)
 void TypedefMatcher::bind(
 	clang::ast_matchers::MatchFinder* matchFinder) {
 	const auto matcher =
-		typedefNameDecl(isExpansionInFileMatching("sample.cpp"));
+		typedefNameDecl(isExpansionInFileMatching("sample.hpp"));
 
 	matchFinder->addMatcher(matcher, this);
 }

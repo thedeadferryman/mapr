@@ -6,29 +6,39 @@
 
 #include "templateFile.hpp"
 
+#include <fmt/args.h>
 #include <fmt/format.h>
 
-using kodgen::transform::TemplateFile;
-using kodgen::util::ResourceCategory;
-using kodgen::util::ResourceLoader;
+using mapr::transform::TemplateFile;
+using mapr::util::ResourceCategory;
+using mapr::util::ResourceLoader;
 
-TemplateFile::TemplateFile(const ResourceLoader& loader, std::string_view name)
-	: AuxDecl(name)
-	, templateStream(loader.loadResource(ResourceCategory::TemplateFile, name))
-	, isLoaded(false) {}
+auto buildFormatArgStore(
+	const std::unordered_map<std::string, std::string>& variables) {
+	fmt::dynamic_format_arg_store<fmt::format_context> store;
 
-auto TemplateFile::replaceWith() -> std::string {
-	return fmt::vformat(loadStreamContents(),
-	                    fmt::make_format_args(
-							fmt::arg("overloadPreludeDefinePrefix",
-	                                                   "KODGEN_PRELUDE_"),
-							fmt::arg("externDefinePrefix", "KODGEN_EXPORT")
-							));
-}
-auto kodgen::transform::TemplateFile::loadStreamContents() -> std::string_view {
-	if (isLoaded) {
-		return templateString;
+	for (const auto& [key, value] : variables) {
+		store.push_back(fmt::arg(key.c_str(), value));
 	}
+
+	return store;
+}
+
+TemplateFile::TemplateFile(std::shared_ptr<ResourceLoader> loader,
+                           std::string_view name)
+	: AuxDecl(name)
+	, loader(std::move(loader)) {}
+
+auto TemplateFile::render(
+	const std::unordered_map<std::string, std::string>& variables) const
+	-> std::string {
+	return fmt::vformat(loadStreamContents(), buildFormatArgStore(variables));
+}
+auto TemplateFile::loadStreamContents() const -> std::string {
+	std::unique_ptr<std::ifstream> templateStream = loader->loadResource(  //
+		util::ResourceCategory::TemplateFile,
+		getID()  //
+	);
 
 	std::stringstream accum;
 	std::string buf;
@@ -41,5 +51,5 @@ auto kodgen::transform::TemplateFile::loadStreamContents() -> std::string_view {
 		buf.clear();
 	}
 
-	return templateString = accum.str();
+	return accum.str();
 }

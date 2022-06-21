@@ -10,19 +10,21 @@
 
 #include "view/declBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class DeclContext {
-	std::map<std::string, std::shared_ptr<view::DeclBase>> declarations;
+	std::map<std::string, std::shared_ptr<const view::DeclBase>> declarations;
 
   public:
-	void addDeclaration(const std::shared_ptr<view::DeclBase>& decl);
+	void addDeclaration(const std::shared_ptr<const view::DeclBase>& decl);
 
 	[[nodiscard]] auto findDeclaration(std::string_view id) const
-		-> std::shared_ptr<view::DeclBase>;
+		-> std::shared_ptr<const view::DeclBase>;
+
+	void replaceDeclaration(const std::shared_ptr<const DeclBase>& decl);
 
 	[[nodiscard]] auto getDeclarations() const
-		-> const std::map<std::string, std::shared_ptr<view::DeclBase>>&;
+		-> const std::map<std::string, std::shared_ptr<const view::DeclBase>>&;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

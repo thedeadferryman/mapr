@@ -4,19 +4,35 @@
 
 #include "enumMemberDecl.hpp"
 
-#include "enumDecl.hpp"
+#include "view/enum/enumDecl.hpp"
 
-using kodgen::view::EnumMemberDecl;
+using mapr::view::EnumMemberDecl;
 
-EnumMemberDecl::EnumMemberDecl(const std::string& id,
-                               std::shared_ptr<EnumDecl> owner)
-	: DeclBase(id, DeclType::EnumMember)
-	, owner(std::move(owner)) {}
+EnumMemberDecl::EnumMemberDecl(const QualifiedName& name,
+                               const std::shared_ptr<const EnumDecl>& owner,
+                               std::string_view value,
+                               std::shared_ptr<SourceLoc> location)
+	: DeclBase(name.str(), DeclType::EnumMember)
+	, owner(owner)
+	, value(value)
+	, location(std::move(location))
+	, name(name) {}
 
-auto EnumMemberDecl::getOwner() -> std::shared_ptr<EnumDecl> {
+auto EnumMemberDecl::getOwner() const -> std::shared_ptr<const EnumDecl> {
 	return owner.lock();
 }
 
-auto EnumMemberDecl::getName() -> std::string {
-	return getID();
+auto EnumMemberDecl::getValue() const -> std::string {
+	return value;
+}
+
+auto EnumMemberDecl::getName() const -> std::string {
+	return name.basename().str();
+}
+
+auto EnumMemberDecl::getLocation() const -> std::shared_ptr<SourceLoc> {
+	return location;
+}
+auto EnumMemberDecl::getQualifiedName() const -> QualifiedName {
+	return name;
 }

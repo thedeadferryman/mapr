@@ -8,9 +8,9 @@
 
 #include "util/macro.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
-S_ENUM(TypeKind, Class, Struct, Builtin, Pointer, Reference, Alias, Enum);
+S_ENUM(TypeKind, Record, Builtin, Pointer, Reference, Alias, Enum);
 
 class TypeBase {
 	clang::Qualifiers qualifiers;
@@ -24,16 +24,24 @@ class TypeBase {
 
 	[[nodiscard]] virtual auto getPrettyName() const -> std::string = 0;
 
+	[[nodiscard]] virtual auto isVoid() const -> bool;
+
 	TypeBase(const TypeBase&) = delete;
 	TypeBase(TypeBase&&) = delete;
 	auto operator=(const TypeBase&) -> TypeBase& = delete;
 	auto operator=(TypeBase&&) -> TypeBase& = delete;
 	virtual ~TypeBase() = default;
 
-	friend auto operator<<(std::ostream& os, std::shared_ptr<TypeBase> type)
-		-> decltype(os) {
-		return os << type->getPrettyName();
-	};
-};
+	friend auto operator==(const std::shared_ptr<TypeBase>& first,
+	                       const std::shared_ptr<TypeBase>& second) -> bool {
+		return (first->getQualifiers() == second->getQualifiers())
+			&& (first->getPrettyName() == second->getPrettyName());
+	}
 
-}  // namespace kodgen::view
+	friend auto operator<<(std::ostream& stream,
+	                       const std::shared_ptr<TypeBase>& type)
+		-> decltype(stream) {
+		return stream << type->getPrettyName();
+	}
+};
+}  // namespace mapr::view

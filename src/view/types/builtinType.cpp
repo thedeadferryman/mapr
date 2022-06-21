@@ -6,7 +6,7 @@
 
 #include "builtinType.hpp"
 
-using kodgen::view::BuiltinType;
+using mapr::view::BuiltinType;
 
 BuiltinType::BuiltinType(const clang::Qualifiers& qualifiers,
                          std::string_view displayName,
@@ -31,4 +31,16 @@ auto BuiltinType::getPrettyName() const -> std::string {
 }
 auto BuiltinType::getDisplayName() const -> std::string {
 	return displayName;
+}
+
+auto BuiltinType::isVoid() const -> bool {
+	return variant == Variant::Void;
+}
+
+auto BuiltinType::makeVoid() -> std::shared_ptr<BuiltinType> {
+	return std::make_shared<view::BuiltinType>(  //
+		clang::Qualifiers(),
+		std::string("void"),
+		view::BuiltinType::Variant::Void  //
+	);
 }

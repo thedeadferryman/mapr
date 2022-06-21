@@ -8,7 +8,7 @@
 
 #include "util/exceptions/baseException.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class UndefinedDeclException : public util::BaseException {
   public:
@@ -18,4 +18,4 @@ class UndefinedDeclException : public util::BaseException {
 	explicit UndefinedDeclException(std::string_view message);
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

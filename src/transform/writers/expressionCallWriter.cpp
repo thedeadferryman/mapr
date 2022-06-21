@@ -6,8 +6,8 @@
 
 #include "util/collectionUtils.hpp"
 
-using kodgen::transform::ExpressionCallWriter;
-using kodgen::util::CollectionUtils;
+using mapr::transform::ExpressionCallWriter;
+using mapr::util::CollectionUtils;
 
 ExpressionCallWriter::ExpressionCallWriter(
 	std::unique_ptr<WriterBase> expr,

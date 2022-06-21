@@ -13,7 +13,7 @@
 		return *this; \
 	}
 
-using kodgen::util::StringBuilder;
+using mapr::util::StringBuilder;
 
 StringBuilder::StringBuilder() = default;
 

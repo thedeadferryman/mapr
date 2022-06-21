@@ -5,24 +5,27 @@
 #pragma once
 
 #include "view/declBase.hpp"
+#include "view/name/qualifiedName.hpp"
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+#include "view/types/pointerType.hpp"
+
+namespace mapr::view {
 
 class AliasType : public TypeBase {
 	std::shared_ptr<TypeBase> source;
-	std::string name;
+	QualifiedName name;
 
   public:
 	AliasType(const clang::Qualifiers& quals,
-	          std::string_view name,
+	          QualifiedName qualName,
 	          std::shared_ptr<TypeBase> source);
 
 	[[nodiscard]] auto getSource() const -> const std::shared_ptr<TypeBase>&;
 
-	[[nodiscard]] auto getQualifiedName() const -> const std::string&;
+	[[nodiscard]] auto getName() const -> const QualifiedName&;
 
 	[[nodiscard]] auto getPrettyName() const -> std::string override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

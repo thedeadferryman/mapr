@@ -11,16 +11,27 @@
 #include "view/declBase.hpp"
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class VarDecl : public DeclBase {
 	const std::shared_ptr<TypeBase> type;
+	std::shared_ptr<SourceLoc> location;
 
   public:
-	VarDecl(std::string_view id, std::shared_ptr<TypeBase> type);
+	VarDecl(std::string_view id,
+	        std::shared_ptr<TypeBase> type,
+	        std::shared_ptr<SourceLoc> location);
 
 	[[nodiscard]] virtual auto getType() const
 		-> const std::shared_ptr<TypeBase>&;
+
+	friend auto operator==(const std::shared_ptr<const VarDecl>& first,
+	                       const std::shared_ptr<const VarDecl>& second) {
+		return first->getType() == second->getType();
+	}
+
+	auto getLocation() const -> std::shared_ptr<SourceLoc> override;
+	auto getQualifiedName() const -> QualifiedName override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

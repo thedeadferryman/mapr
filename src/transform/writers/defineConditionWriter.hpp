@@ -9,7 +9,7 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 enum class ConditionType {
 	Normal,
@@ -25,8 +25,8 @@ class DefineConditionWriter : public WriterBase {
 
   public:
 	static auto ifCXX(std::unique_ptr<const WriterBase> thenBranch,
-	                  std::unique_ptr<const WriterBase> elseBranch = nullptr,
-	                  bool isInverted = false) -> DefineConditionWriter;
+	                  std::unique_ptr<const WriterBase> elseBranch,
+	                  ConditionType type) -> DefineConditionWriter;
 
   public:
 	DefineConditionWriter(
@@ -42,4 +42,4 @@ class DefineConditionWriter : public WriterBase {
 		-> std::string;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

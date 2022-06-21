@@ -1,152 +1,165 @@
-#include <filesystem>
-#include <iostream>
-#include <string>
+#include <concepts>
 
-#include <clang/ASTMatchers/ASTMatchFinder.h>
-#include <clang/Format/Format.h>
-#include <clang/Frontend/FrontendActions.h>
-#include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
-#include <llvm/Support/CommandLine.h>
+#include <clang/Frontend/CompilerInstance.h>
 
-#include <boost/algorithm/string.hpp>
+#include "app/cli/cliOptionsParser.hpp"
+#include "app/cli/utils.hpp"
+#include "app/parser/sourceParser.hpp"
+#include "app/pipeline/declarationsPipeline.hpp"
+#include "app/pipeline/definitionsPipeline.hpp"
+#include "app/sanitizer/codeSanitizer.hpp"
 
-#include "match/matchers/classMatcher.hpp"
-#include "match/matchers/enumMatcher.hpp"
-#include "match/matchers/functionMatcher.hpp"
-#include "match/matchers/structMatcher.hpp"
-#include "match/matchers/typedefMatcher.hpp"
+#ifndef RESOURCES_DIR
+#	define RESOURCES_DIR \
+		(FS::path(argv[0]).parent_path() / ".." / "share" / "mapr" \
+		 / "resources")
+#endif
 
-#include "view/declContext.hpp"
-#include "view/function/functionDecl.hpp"
-#include "view/function/functionOverload.hpp"
-#include "view/types/aliasType.hpp"
+namespace cl = llvm::cl;
+using mapr::app::CliOptionsParser;
+using mapr::app::getConfigFile;
 
-#include "transform/aux/templateFile.hpp"
-#include "transform/dependencies/dependencyResolver.hpp"
-#include "transform/sourceTransformer.hpp"
-#include "transform/writerStream.hpp"
+[[maybe_unused]] cl::OptionCategory parserOptions("Parser Options");
+[[maybe_unused]] cl::OptionCategory toolOptions("mapr Options");
 
-#include "transform/mappers/aux/auxMapperFactory.hpp"
-#include "transform/mappers/enum/enumMapperFactory.hpp"
-#include "transform/mappers/function/functionDeclarationMapperFactory.hpp"
+[[maybe_unused]] cl::extrahelp commonHelp(CliOptionsParser::HelpMessage);
 
-#include "util/resourceLoader.hpp"
+[[maybe_unused]] cl::opt<std::string> configFile(
+	"config-file",
+	cl::desc("Configuration file to use"),
+	cl::value_desc("filename"),
+	cl::cat(toolOptions),
+	cl::init(".maprrc.yml"));
+[[maybe_unused]] cl::alias configFileShort(
+	"c", cl::desc("Alias for '--config-file'"), cl::aliasopt(configFile));
+
+using mapr::app::CodeSanitizer;
+using mapr::app::DeclarationsPipeline;
+using mapr::app::DefinitionsPipeline;
+using mapr::app::PipelineBase;
+using mapr::app::SourceParser;
+
+using mapr::view::DeclContext;
+
+using mapr::transform::DependencyResolver;
+using mapr::transform::SourceTransformer;
+using mapr::transform::WriterStream;
+
+using mapr::util::ResourceLoader;
+
+using mapr::config::PipelineContext;
 
 namespace FS = std::filesystem;
 
-using std::int32_t;
-
-using llvm::cl::NumOccurrencesFlag;
-using llvm::cl::OptionCategory;
-
-using clang::tooling::ClangTool;
-using clang::tooling::CommonOptionsParser;
-using clang::tooling::newFrontendActionFactory;
-
-using clang::ast_matchers::MatchFinder;
-
-using kodgen::match::ClassMatcher;
-using kodgen::match::EnumMatcher;
-using kodgen::match::FunctionMatcher;
-using kodgen::match::MatcherBase;
-using kodgen::match::StructMatcher;
-using kodgen::match::TypedefMatcher;
-
-using kodgen::view::AliasType;
-using kodgen::view::DeclContext;
-using kodgen::view::DeclType;
-using kodgen::view::FunctionDecl;
-using kodgen::view::FunctionOverload;
-using kodgen::view::VarDecl;
-
-using kodgen::transform::DependencyResolver;
-using kodgen::transform::SourceTransformer;
-using kodgen::transform::TemplateFile;
-using kodgen::transform::WriterStream;
-
-using kodgen::transform::AuxMapperFactory;
-using kodgen::transform::EnumMapperFactory;
-using kodgen::transform::FunctionDeclarationMapperFactory;
-using kodgen::transform::MapperFactoryMode;
-
-using kodgen::util::ResourceLoader;
+template<class Pipeline>
+	requires(std::derived_from<Pipeline, PipelineBase>)
+void executePipeline(std::ostream& stream,
+                     const std::shared_ptr<PipelineContext>& pipelineContext,
+                     DependencyResolver& dependencyResolver,
+                     std::shared_ptr<DeclContext> declContext) {
+	auto wStream = WriterStream(stream);
+	auto transformer =
+		std::make_shared<SourceTransformer>(wStream, dependencyResolver);
+	auto pipeline = Pipeline(pipelineContext, transformer);
+	pipeline.initialize();
+	pipeline.execute(declContext);
+}
 
 auto main(int32_t argc, const char** argv) -> int32_t {
-	static auto category = OptionCategory("kodgen");
-
-	auto parserOr = CommonOptionsParser::create(
-		argc, argv, category, NumOccurrencesFlag::Optional);
+	auto parserOr = CliOptionsParser::create(
+		argc, argv, parserOptions, cl::NumOccurrencesFlag::Required);
 
 	if (!parserOr) {
-		llvm::errs() << parserOr.takeError();
-		return errorToErrorCode(parserOr.takeError()).value();
+		auto err = parserOr.takeError();
+
+		llvm::errs() << err << "\n";
+		return errorToErrorCode(std::move(err)).value();
 	}
 
-	auto& parser = parserOr.get();
+	auto inputFile = parserOr->getSourcePathList().front();
+	auto config = getConfigFile(configFile.c_str(), inputFile);
+	auto pipelineContext = std::make_shared<PipelineContext>(config, inputFile);
+	auto command =
+		parserOr->getCompilations().getCompileCommands(inputFile).front();
 
-	auto tool = ClangTool(parser.getCompilations(), parser.getSourcePathList());
+	auto adjustedArgs = std::vector<const char*>();
 
-	auto ctx = std::make_shared<DeclContext>();
-	auto matchFinder = MatchFinder();
+	std::transform(
+		std::begin(command.CommandLine) + 1,  // skip the program name
+		std::end(command.CommandLine),
+		std::back_inserter(adjustedArgs),
+		[](const std::string& str) { return str.data(); });
 
-	auto functionMatcher = FunctionMatcher(ctx);
-	auto enumMatcher = EnumMatcher(ctx);
-	auto classMatcher = ClassMatcher(ctx);
+	auto sourceParser = SourceParser(config, adjustedArgs);
 
-	functionMatcher.bind(&matchFinder);
-	enumMatcher.bind(&matchFinder);
-	classMatcher.bind(&matchFinder);
+	sourceParser.initialize();
 
-	auto runResult = tool.run(newFrontendActionFactory(&matchFinder).get());
+	auto success = sourceParser.parseAll();
 
-	auto sout = std::stringstream();
-
-	auto writer = WriterStream(sout);
-
-	auto resourceLoader = ResourceLoader(FS::current_path() / "resources");
-
-	auto resolver = DependencyResolver(ctx, resourceLoader);
-
-	auto transformer = SourceTransformer(writer, resolver);
-
-	auto funcMapper = std::make_shared<FunctionDeclarationMapperFactory>(
-		MapperFactoryMode::Declaration);
-	auto auxMapper = std::make_shared<AuxMapperFactory>();
-	auto enumMapper = std::make_shared<EnumMapperFactory>();
-
-	transformer.registerMapper(funcMapper);
-	transformer.registerMapper(auxMapper);
-	transformer.registerMapper(enumMapper);
-
-	for (auto [_, decl] : ctx->getDeclarations()) {
-		transformer.writeDecl(decl);
+	if (!success) {
+		llvm::errs() << "Failed to parse the source code!\n";
+		return -1;
 	}
 
-	auto code = sout.str();
+	const auto& declContext = sourceParser.getParsedContext();
 
-	auto style = clang::format::getStyle(
-		"file", (FS::current_path() / ".clang-format").string(), "LLVM");
+	auto resourceManager = std::make_shared<ResourceLoader>(  //
+		FS::path(RESOURCES_DIR)  //
+	);
 
-	if (style) {
-		auto range = clang::tooling::Range(0, code.length());
-		auto replacements = clang::format::reformat(
-			style.get(), sout.str(), llvm::ArrayRef(range));
-		auto maybeCode =
-			clang::tooling::applyAllReplacements(code, replacements);
+	auto dependencyResolver = DependencyResolver(  //
+		declContext,
+		pipelineContext,
+		resourceManager  //
+	);
 
-		if (maybeCode) {
-			std::cerr << "Formatted!" << std::endl;
+	auto headerOutputPath =
+		FS::current_path() / config.outPath / pipelineContext->getHeaderName();
+	auto implOutputPath =
+		FS::current_path() / config.outPath / pipelineContext->getImplName();
 
-			code = maybeCode.get();
-		}
+	auto headerOutputStream = std::ofstream(headerOutputPath);
+	auto implOutputStream = std::ofstream(implOutputPath);
+
+	if (config.formatOptions.has_value()) {
+		auto sanitizer = CodeSanitizer(config.formatOptions.value());
+
+		auto headerRawStream = std::ostringstream();
+		auto implRawStream = std::ostringstream();
+
+		executePipeline<DeclarationsPipeline>(  //
+			headerRawStream,
+			pipelineContext,
+			dependencyResolver,
+			declContext  //
+		);
+		sanitizer.sanitize(headerRawStream.str(), headerOutputStream);
+
+		executePipeline<DefinitionsPipeline>(  //
+			implRawStream,
+			pipelineContext,
+			dependencyResolver,
+			declContext  //
+		);
+		sanitizer.sanitize(implRawStream.str(), implOutputStream);
+	} else {
+		executePipeline<DeclarationsPipeline>(  //
+			headerOutputStream,
+			pipelineContext,
+			dependencyResolver,
+			declContext  //
+		);
+
+		executePipeline<DefinitionsPipeline>(  //
+			implOutputStream,
+			pipelineContext,
+			dependencyResolver,
+			declContext  //
+		);
 	}
 
-	auto ofs = std::ofstream(FS::current_path() / "out" / "sample.h");
+	headerOutputStream.close();
+	implOutputStream.close();
 
-	ofs << code;
-
-	ofs.close();
-
-	return runResult;
+	return 0;
 }

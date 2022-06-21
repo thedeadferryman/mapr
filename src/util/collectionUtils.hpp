@@ -5,11 +5,12 @@
 #pragma once
 
 #include <boost/algorithm/string/join.hpp>
+#include <functional>
+#include <vector>
 
-namespace kodgen::util {
+namespace mapr::util {
 
 class CollectionUtils {
-  private:
 	template<typename Collection>
 	using Element = decltype(*std::begin(Collection()));
 
@@ -27,11 +28,39 @@ class CollectionUtils {
 	static void forEachSkipFirst(
 		const Collection& collection,
 		std::function<void(const Element<Collection>&)> action) {
-		if (std::begin(collection) == std::end(collection))
+		if (std::begin(collection) == std::end(collection)) {
 			return;
+		}
 
 		std::for_each(std::begin(collection) + 1, std::end(collection), action);
 	}
+
+	template<typename Collection>
+	static auto mapJoin(
+		const Collection& collection,
+		const std::string& glue,
+		std::function<std::string(const Element<Collection>&)> action) {
+		auto strings = std::vector<std::string>();
+
+		std::transform(std::begin(collection),
+		               std::end(collection),
+		               std::back_inserter(strings),
+		               action);
+
+		return boost::algorithm::join(strings, glue);
+	}
+
+	template<size_t Count, typename T>
+	static auto decompose(const T& container) {
+		return decompImpl(container, std::make_index_sequence<Count>());
+	}
+
+  private:
+	template<typename T, size_t... S>
+	static auto decompImpl(const T& container,
+	                       std::index_sequence<S...> /* unused */) {
+		return std::forward_as_tuple(*std::next(std::begin(container), S)...);
+	}
 };
 
-}  // namespace kodgen::util
+}  // namespace mapr::util

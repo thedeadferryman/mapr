@@ -6,17 +6,20 @@
 
 #include "transform/mappers/enum/enumMapper.hpp"
 
-using kodgen::transform::EnumMapperFactory;
+using mapr::transform::EnumMapperFactory;
+
+EnumMapperFactory::EnumMapperFactory(
+	std::shared_ptr<config::PipelineContext> context)
+	: context(std::move(context)) {}
 
 auto EnumMapperFactory::acceptsDecl(
-	const std::shared_ptr<view::DeclBase>& decl) const -> bool {
-	return std::dynamic_pointer_cast<view::EnumDecl>(decl) != nullptr;
+	const std::shared_ptr<const view::DeclBase>& decl) const -> bool {
+	return std::dynamic_pointer_cast<const view::EnumDecl>(decl) != nullptr;
 }
-
 auto EnumMapperFactory::mapperForDecl(
-	std::shared_ptr<view::DeclBase> decl) const -> std::unique_ptr<MapperBase> {
-	if (auto enumDecl = std::dynamic_pointer_cast<view::EnumDecl>(decl)) {
-		return std::make_unique<EnumMapper>(enumDecl);
+	std::shared_ptr<const view::DeclBase> decl) const -> std::unique_ptr<MapperBase> {
+	if (auto enumDecl = std::dynamic_pointer_cast<const view::EnumDecl>(decl)) {
+		return std::make_unique<EnumMapper>(enumDecl, context);
 	}
 
 	BOOST_ASSERT_MSG(false, "Unsupported Decl type");

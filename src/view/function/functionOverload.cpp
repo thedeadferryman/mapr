@@ -7,13 +7,15 @@
 
 #include "functionOverload.hpp"
 
-using kodgen::view::FunctionOverload;
+using mapr::view::FunctionOverload;
 
 FunctionOverload::FunctionOverload(
 	std::shared_ptr<TypeBase> returnType,
-	std::vector<std::shared_ptr<VarDecl>> arguments)
+	std::vector<std::shared_ptr<const VarDecl>> arguments,
+	std::shared_ptr<SingleSourceLoc> location)
 	: returnType(std::move(returnType))
-	, arguments(std::move(arguments)) {}
+	, arguments(std::move(arguments))
+	, location(std::move(location)) {}
 
 auto FunctionOverload::getReturnType() const
 	-> const std::shared_ptr<TypeBase>& {
@@ -21,7 +23,7 @@ auto FunctionOverload::getReturnType() const
 }
 
 auto FunctionOverload::getArguments() const
-	-> const std::vector<std::shared_ptr<VarDecl>>& {
+	-> const std::vector<std::shared_ptr<const VarDecl>>& {
 	return arguments;
 }
 
@@ -30,11 +32,13 @@ auto FunctionOverload::countArguments() const -> std::size_t {
 }
 
 auto FunctionOverload::bindArgument() const -> std::optional<FunctionOverload> {
-	if (arguments.empty())
+	if (arguments.empty()) {
 		return std::nullopt;
+	}
 
 	if (arguments.size() <= 1) {
-		return FunctionOverload(returnType, {});
+		return FunctionOverload(
+			returnType, {}, std::shared_ptr<SingleSourceLoc>());
 	}
 
 	auto newArgs = decltype(arguments)();
@@ -43,10 +47,11 @@ auto FunctionOverload::bindArgument() const -> std::optional<FunctionOverload> {
 	          std::end(arguments),
 	          std::back_inserter(newArgs));
 
-	return FunctionOverload(returnType, std::move(newArgs));
+	return FunctionOverload(
+		returnType, std::move(newArgs), std::shared_ptr<SingleSourceLoc>());
 }
 
-auto FunctionOverload::appendArgument(std::shared_ptr<VarDecl> argument) const
+auto FunctionOverload::appendArgument(std::shared_ptr<const VarDecl> argument) const
 	-> FunctionOverload {
 	auto newArgs = decltype(arguments)();
 
@@ -56,5 +61,10 @@ auto FunctionOverload::appendArgument(std::shared_ptr<VarDecl> argument) const
 
 	newArgs.push_back(std::move(argument));
 
-	return FunctionOverload(returnType, std::move(newArgs));
+	return {returnType, std::move(newArgs), std::shared_ptr<SingleSourceLoc>()};
+}
+
+auto mapr::view::FunctionOverload::getLocation() const
+	-> const std::shared_ptr<SingleSourceLoc>& {
+	return location;
 }

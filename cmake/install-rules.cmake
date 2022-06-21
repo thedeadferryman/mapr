@@ -1,18 +1,27 @@
 if(PROJECT_IS_TOP_LEVEL)
-  set(CMAKE_INSTALL_INCLUDEDIR include/kodgen CACHE PATH "")
+  set(CMAKE_INSTALL_INCLUDEDIR include/mapr CACHE PATH "")
 endif()
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 # find_package(<package>) call for consumers to find this project
-set(package kodgen)
+set(package mapr)
 
 install(
-    TARGETS kodgen_kodgen
-    EXPORT kodgenTargets
-    RUNTIME COMPONENT kodgen_Runtime
+    TARGETS
+        mapr
+        mapr-commons
+        mapr-config
+        mapr-match
+        mapr-transform
+        mapr-util
+        mapr-view
+    EXPORT maprTargets
+    RUNTIME COMPONENT mapr_Runtime
 )
+
+install(DIRECTORY resources/ DESTINATION share/mapr/resources)
 
 write_basic_package_version_file(
     "${package}ConfigVersion.cmake"
@@ -21,31 +30,32 @@ write_basic_package_version_file(
 
 # Allow package maintainers to freely override the path for the configs
 set(
-    kodgen_INSTALL_CMAKEDIR "${CMAKE_INSTALL_DATADIR}/${package}"
+    mapr_INSTALL_CMAKEDIR "${CMAKE_INSTALL_DATADIR}/${package}"
     CACHE PATH "CMake package config location relative to the install prefix"
 )
-mark_as_advanced(kodgen_INSTALL_CMAKEDIR)
+mark_as_advanced(mapr_INSTALL_CMAKEDIR)
 
 install(
     FILES cmake/install-config.cmake
-    DESTINATION "${kodgen_INSTALL_CMAKEDIR}"
+    DESTINATION "${mapr_INSTALL_CMAKEDIR}"
     RENAME "${package}Config.cmake"
-    COMPONENT kodgen_Development
+    COMPONENT mapr_Development
 )
 
 install(
     FILES "${PROJECT_BINARY_DIR}/${package}ConfigVersion.cmake"
-    DESTINATION "${kodgen_INSTALL_CMAKEDIR}"
-    COMPONENT kodgen_Development
+    DESTINATION "${mapr_INSTALL_CMAKEDIR}"
+    COMPONENT mapr_Development
 )
 
 install(
-    EXPORT kodgenTargets
-    NAMESPACE kodgen::
-    DESTINATION "${kodgen_INSTALL_CMAKEDIR}"
-    COMPONENT kodgen_Development
+    EXPORT maprTargets
+    NAMESPACE mapr::
+    DESTINATION "${mapr_INSTALL_CMAKEDIR}"
+    COMPONENT mapr_Development
 )
 
 if(PROJECT_IS_TOP_LEVEL)
+  include(cmake/project-info.cmake)
   include(CPack)
 endif()

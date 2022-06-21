@@ -5,48 +5,67 @@
 #pragma once
 
 #include "view/types.hpp"
+#include "view/types/recordType.hpp"
 
-namespace kodgen::transform {
+#include "config/pipelineContext.hpp"
+
+#include "transform/name/qualifiedNameTransformer.hpp"
+
+namespace mapr::transform {
 
 class TypeNameTransformer {
-  public:
-	enum class SlugType {
-		NoSlug,
-		CountSlug,
-		FullSlug
+	enum class QualifiersMode {
+		Keep,
+		Remove
 	};
 
-	[[nodiscard]] static auto getTypeName(
-		std::shared_ptr<view::TypeBase> type) -> std::string;
+	std::shared_ptr<config::PipelineContext> context;
+	QualifiedNameTransformer nameTransformer;
 
-	[[nodiscard]] static auto getOverloadSlug(
-		std::shared_ptr<view::TypeBase> type) -> std::string;
+  public:
+	explicit TypeNameTransformer(
+		std::shared_ptr<config::PipelineContext> context);
 
-  private:
-	[[nodiscard]] static auto getUnqualifiedTypeName(
-		std::shared_ptr<view::TypeBase> type) -> std::string;
-
-	[[nodiscard]] static auto getUnqualifiedOverloadSlug(
-		std::shared_ptr<view::TypeBase> type) -> std::string;
-
-	[[nodiscard]] static auto getBuiltinOverloadSlug(
-		const std::shared_ptr<view::BuiltinType>& builtinType) -> std::string;
-
-	[[nodiscard]] static auto referenceKindSuffix(
-		kodgen::view::ReferenceKind kind) -> std::string_view;
-
-	[[nodiscard]] static auto getBuiltinTypeName(
-		const std::shared_ptr<view::BuiltinType>& builtinType) -> std::string;
-
-	[[nodiscard]] static auto getPointerTypeName(
-		const std::shared_ptr<view::PointerType>& pointerType) -> std::string;
-
-	[[nodiscard]] static auto getDeclarationReferenceTypeName(
-		const std::shared_ptr<view::ReferenceType>& referenceType)
+	[[nodiscard]] auto getTypeName(std::shared_ptr<view::TypeBase> type) const
 		-> std::string;
 
-	[[nodiscard]] static auto getEnumTypeName(
-		const std::shared_ptr<view::EnumType>& enumType) -> std::string;
+	[[nodiscard]] auto buildMappedType(
+		std::shared_ptr<view::TypeBase> type) const -> std::string;
+
+	[[nodiscard]] auto getOverloadSlug(
+		const std::shared_ptr<view::TypeBase>& type) const -> std::string;
+
+  private:
+	[[nodiscard]] auto getUnqualifiedOverloadSlug(
+		std::shared_ptr<view::TypeBase> type) const -> std::string;
+
+	[[nodiscard]] auto getBuiltinOverloadSlug(
+		const std::shared_ptr<view::BuiltinType>& builtinType) const
+		-> std::string;
+
+	[[nodiscard]] auto referenceKindSuffix(
+		mapr::view::ReferenceKind kind) const -> std::string_view;
+
+	[[nodiscard]] auto getBuiltinTypeName(
+		const std::shared_ptr<view::BuiltinType>& builtinType,
+		QualifiersMode qualifiersMode = QualifiersMode::Keep
+		) const
+		-> std::string;
+
+	[[nodiscard]] auto getPointerTypeName(
+		const std::shared_ptr<view::PointerType>& pointerType) const
+		-> std::string;
+
+	[[nodiscard]] auto getReferenceTypeName(
+		const std::shared_ptr<view::ReferenceType>& referenceType) const
+		-> std::string;
+
+	[[nodiscard]] auto getEnumTypeName(
+		const std::shared_ptr<view::EnumType>& enumType) const -> std::string;
+
+	[[nodiscard]] auto getRecordTypeName(
+		const std::shared_ptr<view::RecordType>& recordType) const
+		-> std::string;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

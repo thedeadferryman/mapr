@@ -1,52 +1,55 @@
-//
-// Created by kmeinkopf on 19.01.2022.
-//
+#include <functional>
+#include <utility>
 
 #include "typeNameTransformer.hpp"
 
 #include "transform/exceptions/unsupportedTypeException.hpp"
-#include "transform/name/namespacedNameTransformer.hpp"
+#include "transform/name/qualifiedNameTransformer.hpp"
 
 #include "util/matchType.hpp"
+#include "util/stringBuilder.hpp"
 
-using kodgen::transform::TypeNameTransformer;
-using kodgen::transform::UnsupportedTypeException;
-using kodgen::util::MatchType;
+using mapr::transform::TypeNameTransformer;
+using mapr::transform::UnsupportedTypeException;
+using mapr::util::MatchType;
 
 constexpr auto unsupportedType =
-	[](const std::shared_ptr<kodgen::view::TypeBase>& type) -> std::string {
+	[](const std::shared_ptr<mapr::view::TypeBase>& type) -> std::string {
 	throw UnsupportedTypeException(type->getKind(), type->getPrettyName());
 };
 
-auto TypeNameTransformer::getTypeName(std::shared_ptr<view::TypeBase> type)
-	-> std::string {
+mapr::transform::TypeNameTransformer::TypeNameTransformer(
+	std::shared_ptr<config::PipelineContext> context)
+	: context(std::move(context))
+	, nameTransformer(this->context) {}
+
+auto TypeNameTransformer::getTypeName(
+	std::shared_ptr<view::TypeBase> type) const -> std::string {
 	return MatchType::matchType<std::string>(
-		type,  //
-		[](const std::shared_ptr<view::BuiltinType>& builtin) {
+		std::move(type),  //
+		[this](const std::shared_ptr<view::BuiltinType>& builtin) {
 			return getBuiltinTypeName(builtin);
 		},
-		[](const std::shared_ptr<view::PointerType>& ptr) {
+		[this](const std::shared_ptr<view::PointerType>& ptr) {
 			return getPointerTypeName(ptr);
 		},
-		[](const std::shared_ptr<view::ReferenceType>& ref) {
-			return getDeclarationReferenceTypeName(ref);
+		[this](const std::shared_ptr<view::ReferenceType>& ref) {
+			return getReferenceTypeName(ref);
 		},
-		[](const std::shared_ptr<view::AliasType>& alias) {
-			return getTypeName(alias->getSource());
+		[this](const std::shared_ptr<view::AliasType>& alias) {
+			return nameTransformer.getName(alias->getName());
 		},
-		[](const std::shared_ptr<view::EnumType>& enumType) {
+		[this](const std::shared_ptr<view::EnumType>& enumType) {
 			return getEnumTypeName(enumType);
+		},
+		[this](const std::shared_ptr<view::RecordType>& recordType) {
+			return getRecordTypeName(recordType);
 		},
 		unsupportedType);
 }
 
-auto TypeNameTransformer::getUnqualifiedTypeName(
-	std::shared_ptr<view::TypeBase> type) -> std::string {
-	return std::string();
-}
-
-auto TypeNameTransformer::getOverloadSlug(std::shared_ptr<view::TypeBase> type)
-	-> std::string {
+auto TypeNameTransformer::getOverloadSlug(
+	const std::shared_ptr<view::TypeBase>& type) const -> std::string {
 	auto builder = std::stringstream();
 
 	builder << getUnqualifiedOverloadSlug(type);
@@ -63,31 +66,38 @@ auto TypeNameTransformer::getOverloadSlug(std::shared_ptr<view::TypeBase> type)
 }
 
 auto TypeNameTransformer::getUnqualifiedOverloadSlug(
-	std::shared_ptr<view::TypeBase> type) -> std::string {
+	std::shared_ptr<view::TypeBase> type) const -> std::string {
 	return MatchType::matchType<std::string>(
-		type,  //
-		[](const std::shared_ptr<view::PointerType>& ptr) -> std::string {
+		std::move(type),  //
+		[this](const std::shared_ptr<view::PointerType>& ptr) -> std::string {
 			return getOverloadSlug(ptr->getPointee()) + "P";
 		},
-		[](const std::shared_ptr<view::ReferenceType>& ref) -> std::string {
+		[this](const std::shared_ptr<view::ReferenceType>& ref) -> std::string {
 			return getOverloadSlug(ref->dereference())
 				+ std::string(referenceKindSuffix(ref->getReferenceKind()));
 		},
-		[](const std::shared_ptr<view::AliasType>& alias) -> std::string {
-			return alias->getQualifiedName();
+		[this](const std::shared_ptr<view::AliasType>& alias) -> std::string {
+			return nameTransformer.getName(alias->getName(), NameStyle::Raw);
 		},
-		[](const std::shared_ptr<view::BuiltinType>& builtin) -> std::string {
-			return getBuiltinOverloadSlug(builtin);
+		[this](const std::shared_ptr<view::BuiltinType>& builtin)
+			-> std::string { return getBuiltinOverloadSlug(builtin); },
+		[this](const std::shared_ptr<view::EnumType>& enumType) -> std::string {
+			return nameTransformer.getName(enumType->getName(), NameStyle::Raw);
+		},
+		[this](const std::shared_ptr<view::RecordType>& recordType)
+			-> std::string {
+			return nameTransformer.getName(recordType->getName(),
+		                                   NameStyle::Raw);
 		},
 		unsupportedType);
 }
 
-auto TypeNameTransformer::referenceKindSuffix(kodgen::view::ReferenceKind kind)
-	-> std::string_view {
+auto TypeNameTransformer::referenceKindSuffix(
+	mapr::view::ReferenceKind kind) const -> std::string_view {
 	switch (kind) {
-		case kodgen::view::ReferenceKind::LVALUE:
+		case mapr::view::ReferenceKind::LVALUE:
 			return "LV";
-		case kodgen::view::ReferenceKind::RVALUE:
+		case mapr::view::ReferenceKind::RVALUE:
 			return "RV";
 		default:
 			return "R";
@@ -95,15 +105,16 @@ auto TypeNameTransformer::referenceKindSuffix(kodgen::view::ReferenceKind kind)
 }
 
 auto TypeNameTransformer::getBuiltinOverloadSlug(
-	const std::shared_ptr<view::BuiltinType>& builtinType) -> std::string {
+	const std::shared_ptr<view::BuiltinType>& builtinType) const
+	-> std::string {
 	switch (builtinType->getVariant()) {
 		case clang::BuiltinType::Void:
-			return "void";
+			return "v";
 		case clang::BuiltinType::NullPtr:
-			return "null";
+			return "n";
 
 		case clang::BuiltinType::Bool:
-			return "bool";
+			return "b";
 
 		case clang::BuiltinType::Char_U:
 		case clang::BuiltinType::Char_S:
@@ -164,15 +175,17 @@ auto TypeNameTransformer::getBuiltinOverloadSlug(
 }
 
 auto TypeNameTransformer::getBuiltinTypeName(
-	const std::shared_ptr<view::BuiltinType>& builtinType) -> std::string {
+	const std::shared_ptr<view::BuiltinType>& builtinType,
+	QualifiersMode qualifiersMode) const -> std::string {
 	auto builder = std::stringstream();
+	if (qualifiersMode == QualifiersMode::Keep) {
+		if (builtinType->getQualifiers().hasVolatile()) {
+			builder << "volatile ";
+		}
 
-	if (builtinType->getQualifiers().hasVolatile()) {
-		builder << "volatile ";
-	}
-
-	if (builtinType->getQualifiers().hasConst()) {
-		builder << "const ";
+		if (builtinType->getQualifiers().hasConst()) {
+			builder << "const ";
+		}
 	}
 
 	builder
@@ -182,7 +195,8 @@ auto TypeNameTransformer::getBuiltinTypeName(
 }
 
 auto TypeNameTransformer::getPointerTypeName(
-	const std::shared_ptr<view::PointerType>& pointerType) -> std::string {
+	const std::shared_ptr<view::PointerType>& pointerType) const
+	-> std::string {
 	auto builder = std::stringstream();
 
 	builder << getTypeName(pointerType->getPointee()) << " *";
@@ -199,12 +213,110 @@ auto TypeNameTransformer::getPointerTypeName(
 }
 
 /// We don't have references in C, so we're using pointers instead
-auto TypeNameTransformer::getDeclarationReferenceTypeName(
-	const std::shared_ptr<view::ReferenceType>& referenceType) -> std::string {
-	return getTypeName(referenceType->dereference()) + " *";
+auto TypeNameTransformer::getReferenceTypeName(
+	const std::shared_ptr<view::ReferenceType>& referenceType) const
+	-> std::string {
+	auto target = referenceType->dereference();
+
+	if (target->getKind() == view::TypeKind::Builtin
+	    && target->getQualifiers().hasConst()) {
+		if (auto builtinType =
+		        std::dynamic_pointer_cast<view::BuiltinType>(target)) {
+			return getBuiltinTypeName(builtinType, QualifiersMode::Remove);
+		}
+
+		UNREACHABLE_M("Type kind is Builtin, but class isn't!");
+	}
+
+	if (target->getKind() == view::TypeKind::Pointer) {
+		return getTypeName(target);
+	}
+
+	return getTypeName(target) + " *";
 }
 
 auto TypeNameTransformer::getEnumTypeName(
-	const std::shared_ptr<view::EnumType>& enumType) -> std::string {
-	return NamespacedNameTransformer::getName(enumType->getName());
+	const std::shared_ptr<view::EnumType>& enumType) const -> std::string {
+	auto builder = util::StringBuilder();
+
+	builder << nameTransformer.getName(enumType->getName());
+
+	if (enumType->getQualifiers().hasConst()) {
+		builder << " const";
+	}
+	if (enumType->getQualifiers().hasVolatile()) {
+		builder << " volatile";
+	}
+
+	return builder;
+}
+
+auto TypeNameTransformer::getRecordTypeName(
+	const std::shared_ptr<view::RecordType>& recordType) const -> std::string {
+	auto builder = util::StringBuilder();
+
+	builder << nameTransformer.getName(recordType->getName())
+			<< context->readConfigVariable("classTypeSuffix").value_or("_CT");
+
+	if (recordType->getQualifiers().hasConst()) {
+		builder << " const";
+	}
+	if (recordType->getQualifiers().hasVolatile()) {
+		builder << " volatile";
+	}
+
+	return builder;
+}
+
+[[nodiscard]] auto mapAliasType(
+	const std::shared_ptr<mapr::view::AliasType>& aliasType)
+	-> std::shared_ptr<mapr::view::TypeBase>;
+
+auto TypeNameTransformer::buildMappedType(
+	std::shared_ptr<view::TypeBase> type) const -> std::string {
+	auto mappedType = MatchType::matchType<std::shared_ptr<view::TypeBase>>(
+		std::move(type),
+		[](const std::shared_ptr<view::RecordType>& recordType)
+			-> std::shared_ptr<view::TypeBase> {
+			return recordType->asPointer();
+		},
+		[](const std::shared_ptr<view::AliasType>& aliasType)
+			-> std::shared_ptr<view::TypeBase> {
+			return mapAliasType(aliasType);
+		},
+		[](std::shared_ptr<view::TypeBase> typeBase) { return typeBase; });
+
+	return getTypeName(mappedType);
+}
+
+[[nodiscard]] auto isAliasOfRecord(
+	const std::shared_ptr<mapr::view::AliasType>& aliasType) -> bool;
+
+auto mapAliasType(const std::shared_ptr<mapr::view::AliasType>& aliasType)
+	-> std::shared_ptr<mapr::view::TypeBase> {
+	auto target = aliasType->getSource();
+
+	if (isAliasOfRecord(aliasType)) {
+		return std::make_shared<mapr::view::PointerType>(aliasType);
+	}
+
+	return aliasType;
+}
+
+auto isAliasOfRecord(const std::shared_ptr<mapr::view::AliasType>& aliasType)
+	-> bool {
+	auto current = aliasType->getSource();
+
+	while (true) {
+		if (auto recordType =
+		        std::dynamic_pointer_cast<mapr::view::RecordType>(current)) {
+			return true;
+		}
+		if (auto inAliasType =
+		        std::dynamic_pointer_cast<mapr::view::AliasType>(current)) {
+			current = inAliasType->getSource();
+			continue;
+		}
+		return false;
+	}
 }

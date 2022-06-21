@@ -9,7 +9,7 @@
 #include <optional>
 #include "util/macro.hpp"
 
-namespace kodgen::util {
+namespace mapr::util {
 
 S_ENUM(ResourceCategory, TemplateFile);
 
@@ -26,4 +26,4 @@ class ResourceLoader {
 		-> std::unique_ptr<std::ifstream>;
 };
 
-}  // namespace kodgen::util
+}  // namespace mapr::util

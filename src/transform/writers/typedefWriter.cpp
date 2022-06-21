@@ -4,7 +4,7 @@
 
 #include "typedefWriter.hpp"
 
-using kodgen::transform::TypedefWriter;
+using mapr::transform::TypedefWriter;
 
 TypedefWriter::TypedefWriter(std::unique_ptr<WriterBase> origin,
                              std::unique_ptr<WriterBase> alias)
@@ -18,5 +18,5 @@ void TypedefWriter::apply(std::ostream& stream) const {
 	stream << " ";
 	alias->apply(stream);
 
-	stream << ";";
+	stream << ";\n";
 }

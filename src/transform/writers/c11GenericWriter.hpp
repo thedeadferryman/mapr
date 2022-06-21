@@ -8,7 +8,7 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class C11GenericWriter : public WriterBase {
   public:
@@ -39,4 +39,4 @@ class C11GenericWriter : public WriterBase {
 	void apply(std::ostream& stream) const override;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

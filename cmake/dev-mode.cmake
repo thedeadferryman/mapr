@@ -5,10 +5,10 @@ endif()
 
 add_custom_target(
     run-exe
-    COMMAND kodgen_kodgen
+    COMMAND mapr
     VERBATIM
 )
-add_dependencies(run-exe kodgen_kodgen)
+add_dependencies(run-exe mapr)
 
 option(BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
 if(BUILD_MCSS_DOCS)

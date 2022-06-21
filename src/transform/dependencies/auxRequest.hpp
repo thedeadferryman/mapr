@@ -6,9 +6,9 @@
 
 #include "transform/dependencies/dependencyRequest.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
-S_ENUM(AuxDependencyId, OverloadPrelude, ExternPrelude);
+S_ENUM(AuxDependencyId, OverloadPrelude, ExternPrelude, DeclarationsHeader);
 
 class AuxRequest : public DependencyRequest {
 	AuxDependencyId dependencyId;
@@ -19,4 +19,4 @@ class AuxRequest : public DependencyRequest {
 	[[nodiscard]] auto getDependencyId() const -> AuxDependencyId;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::transform

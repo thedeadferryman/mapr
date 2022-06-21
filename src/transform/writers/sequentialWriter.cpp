@@ -6,8 +6,8 @@
 
 #include "util/collectionUtils.hpp"
 
-using kodgen::transform::SequentialWriter;
-using kodgen::util::CollectionUtils;
+using mapr::transform::SequentialWriter;
+using mapr::util::CollectionUtils;
 
 auto SequentialWriter::joinToPtr(
 	std::vector<std::unique_ptr<WriterBase>> writers,

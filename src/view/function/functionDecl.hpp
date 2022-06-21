@@ -5,28 +5,57 @@
 #pragma once
 
 #include "view/function/functionOverload.hpp"
-#include "view/namespacedName.hpp"
+#include "view/name/qualifiedName.hpp"
+#include "view/sparseDecl.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
-class FunctionDecl : public DeclBase {
+class FunctionDecl
+	: public SparseDecl {
 	std::vector<FunctionOverload> overloads;
-	NamespacedName qualifiedName;
+	QualifiedName qualifiedName;
 
   public:
-	explicit FunctionDecl(std::string_view id,
-	                      NamespacedName qualifiedName,
-	                      const FunctionOverload& func);
+	FunctionDecl(std::string_view id,
+	             QualifiedName qualifiedName,
+	             const FunctionOverload& func);
 
-	void addOverload(const FunctionOverload& func);
+	FunctionDecl(std::string_view id,
+	             QualifiedName qualifiedName,
+	             std::vector<FunctionOverload> overloads);
+
+	auto addOverload(const FunctionOverload& func) -> bool;
+
+	[[nodiscard]] auto addOverload(const FunctionOverload& func) const
+		-> std::shared_ptr<FunctionDecl>;
+
+	[[nodiscard]] virtual auto clone() const -> std::shared_ptr<FunctionDecl>;
 
 	[[nodiscard]] auto getOverloads() const
 		-> const std::vector<FunctionOverload>&;
 
-	[[nodiscard]] auto getQualifiedName() const -> const NamespacedName&;
+	void dropOverloads();
+
+	auto getSparseLocation() const -> std::shared_ptr<SparseSourceLoc> override;
+
+	[[nodiscard]] auto acceptFilter(
+		const std::shared_ptr<const config::FilterBase>& filter) const
+		-> config::FilterResult override;
+
+	[[nodiscard]] auto getQualifiedName() const -> QualifiedName override;
+
+	[[nodiscard]] auto acceptSparseFilter(
+		const std::shared_ptr<const config::FilterBase>& filter,
+		config::SparseFilteringMode filteringMode) const
+		-> std::shared_ptr<const DeclBase> override;
+
+  private:
+	[[nodiscard]] auto sharedThis() const
+		-> std::shared_ptr<const FunctionDecl>;
 };
 
 auto operator<<(std::shared_ptr<FunctionDecl> overload,
-                const FunctionOverload& decl) -> std::shared_ptr<FunctionDecl>;
+                const FunctionOverload& decl)
+	-> std::shared_ptr<const FunctionDecl>;
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

@@ -8,10 +8,10 @@
 #include <stdexcept>
 #include <string>
 
-namespace kodgen::util {
+namespace mapr::util {
 
 class BaseException : public std::runtime_error {
   public:
 	explicit BaseException(std::string_view message);
 };
-}  // namespace kodgen::util
+}  // namespace mapr::util

@@ -6,12 +6,14 @@
 
 #include "view/types/typeBase.hpp"
 
-namespace kodgen::view {
+namespace mapr::view {
 
 class PointerType : public TypeBase {
 	std::shared_ptr<TypeBase> pointee;
 
   public:
+	explicit PointerType(std::shared_ptr<TypeBase> pointee);
+
 	PointerType(const clang::Qualifiers& quals,
 	            std::shared_ptr<TypeBase> pointee);
 
@@ -20,4 +22,4 @@ class PointerType : public TypeBase {
 	[[nodiscard]] auto getPrettyName() const -> std::string override;
 };
 
-}  // namespace kodgen::view
+}  // namespace mapr::view

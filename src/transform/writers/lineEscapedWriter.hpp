@@ -8,7 +8,7 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class LineEscapedWriter : public WriterBase {
 	std::unique_ptr<WriterBase> subWriter;
@@ -19,4 +19,4 @@ class LineEscapedWriter : public WriterBase {
 	void apply(std::ostream& stream) const override;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

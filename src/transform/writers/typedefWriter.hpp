@@ -8,7 +8,7 @@
 
 #include "transform/writers/writerBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class TypedefWriter : public WriterBase {
 	std::unique_ptr<WriterBase> origin;
@@ -21,4 +21,4 @@ class TypedefWriter : public WriterBase {
 	void apply(std::ostream& stream) const override;
 };
 
-}  // namespace kodgen::getName
+}  // namespace mapr::getName

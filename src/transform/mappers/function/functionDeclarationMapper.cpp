@@ -12,28 +12,30 @@
 
 #include "transform/dependencies/typeRequest.hpp"
 #include "transform/name/functionNameTransformer.hpp"
-#include "transform/name/namespacedNameTransformer.hpp"
 #include "transform/name/typeNameTransformer.hpp"
 #include "transform/writers/c11GenericWriter.hpp"
 #include "transform/writers/defineWriter.hpp"
 #include "transform/writers/expressionCallWriter.hpp"
-#include "transform/writers/functionWriter.hpp"
+#include "transform/writers/function/functionHeadWriter.hpp"
 #include "transform/writers/ieeWriter.hpp"
+#include "transform/writers/sequentialWriter.hpp"
 #include "transform/writers/textWriter.hpp"
 #include "transform/writerStream.hpp"
 
 #include "util/stringBuilder.hpp"
 #include "util/tree/valueNode.hpp"
 
-using kodgen::transform::FunctionDeclarationMapper;
-using kodgen::tree::NodeBase;
-using kodgen::tree::ValueNode;
-using kodgen::view::TypeBase;
+using mapr::transform::FunctionDeclarationMapper;
+using mapr::tree::NodeBase;
+using mapr::tree::ValueNode;
+using mapr::view::TypeBase;
 
 FunctionDeclarationMapper::FunctionDeclarationMapper(
-	std::shared_ptr<view::FunctionDecl> functionDecl)
+	std::shared_ptr<const view::FunctionDecl> functionDecl,
+	std::shared_ptr<config::PipelineContext> context)
 	: functionDecl(std::move(functionDecl))
-	, overloadTree(NodeBase::empty()) {
+	, overloadTree(NodeBase::empty())
+	, context(std::move(context)) {
 	computeArgMap();
 
 	for (const auto& overload : this->functionDecl->getOverloads()) {
@@ -65,34 +67,21 @@ auto FunctionDeclarationMapper::checkDependencies() const
 }
 
 void FunctionDeclarationMapper::write(WriterStream& writer) {
-	if (functionDecl->getOverloads().size() <= 1) {
-		writeSingleOverload(writer);
+	if (functionDecl->getOverloads().size() == 1) {
+		writeOverload(writer, functionDecl->getOverloads().front());
 	} else {
 		writeOverloadTree(writer);
 	}
 }
 
 void FunctionDeclarationMapper::writeOverloadTree(
-	kodgen::transform::WriterStream& writer) const {
+	mapr::transform::WriterStream& writer) const {
 	for (const auto& overload : functionDecl->getOverloads()) {
-		const auto& overloadName = FunctionNameTransformer::getOverloadName(
-			functionDecl->getQualifiedName(),
-			overload,
-			FunctionNameTransformer::SlugType::FullSlug);
-
-		const auto& returnType =
-			TypeNameTransformer::getTypeName(overload.getReturnType());
-
-		auto arguments = std::vector<FunctionWriter::Argument>();
-
-		for (const auto& arg : overload.getArguments()) {
-			const auto& type = TypeNameTransformer::getTypeName(arg->getType());
-			arguments.push_back(
-				FunctionWriter::Argument {.name = arg->getID(), .type = type});
-		}
-
-		writer << FunctionWriter(overloadName, returnType, arguments);
+		writeOverload(writer, overload);
 	}
+
+	writer << TextWriter::Newline;
+
 	writeTypedOverloadDeclarations(writer);
 
 	if (argCounts.size() > 1) {
@@ -100,14 +89,32 @@ void FunctionDeclarationMapper::writeOverloadTree(
 	}
 }
 
-void FunctionDeclarationMapper::writeSingleOverload(WriterStream& writer) {
-	auto target = functionDecl->getOverloads().front();
+void FunctionDeclarationMapper::writeOverload(
+	WriterStream& writer, const mapr::view::FunctionOverload& target) const {
+	auto shortName =
+		FunctionNameTransformer::getOverloadName(context, functionDecl);
+	auto fullName =
+		FunctionNameTransformer::getOverloadName(context, functionDecl, target);
 	auto functionName =
-		NamespacedNameTransformer::getName(functionDecl->getQualifiedName());
-	auto returnType = TypeNameTransformer::getTypeName(target.getReturnType());
-	auto args = std::vector<FunctionWriter::Argument>();
+		(functionDecl->getOverloads().size() == 1) ? shortName : fullName;
 
-	writer << FunctionWriter(functionName, returnType, args);
+	auto typeTransformer = TypeNameTransformer(context);
+
+	auto returnType = typeTransformer.buildMappedType(target.getReturnType());
+	auto args = std::vector<FunctionHeadWriter::Argument>();
+
+	for (const auto& arg : target.getArguments()) {
+		const auto& type = typeTransformer.buildMappedType(arg->getType());
+		args.push_back(FunctionHeadWriter::Argument {
+			.name = arg->getID(),
+			.type = type,
+		});
+	}
+
+	writer << FunctionHeadWriter(context,
+	                             std::make_unique<TextWriter>(functionName),
+	                             std::make_unique<TextWriter>(returnType),
+	                             std::move(args));
 }
 
 void FunctionDeclarationMapper::computeArgMap() {
@@ -147,16 +154,18 @@ void FunctionDeclarationMapper::buildOverloadTree(
 			return;
 		}
 
+		auto typeTransformer = TypeNameTransformer(context);
+
 		auto arg0 = overload.getArguments()[0]->getType();
-		auto argSlug = TypeNameTransformer::getOverloadSlug(arg0);
+		auto argSlug = typeTransformer.getOverloadSlug(arg0);
 
 		auto newNode = node->findOrAddChild(
-			[argSlug](const std::shared_ptr<NodeBase>& child) {
+			[argSlug, typeTransformer](const std::shared_ptr<NodeBase>& child) {
 				if (auto valueChild = std::dynamic_pointer_cast<
 						ValueNode<std::shared_ptr<view::TypeBase>>>(child)) {
 					return argSlug
-						== TypeNameTransformer::getOverloadSlug(
-							   valueChild->getValue());
+						== typeTransformer.getOverloadSlug(
+							valueChild->getValue());
 				}
 
 				return false;
@@ -180,12 +189,18 @@ auto FunctionDeclarationMapper::writeTypedOverloadDeclarationBody(
 	const std::shared_ptr<NodeBase>& node,
 	const view::FunctionOverload& path) const -> std::unique_ptr<WriterBase> {
 	if (node->isLeaf()) {
-		return std::make_unique<TextWriter>(
-			FunctionNameTransformer::getOverloadName(
-				functionDecl->getQualifiedName(), path));
-	}
+		auto seq = std::vector<std::unique_ptr<WriterBase>>();
 
-	auto vec = std::vector<C11GenericWriter::Case>();
+		seq.push_back(std::make_unique<TextWriter>("/* "));
+		seq.push_back(std::make_unique<TextWriter>(
+			functionDecl->getQualifiedName().str()));
+		seq.push_back(std::make_unique<TextWriter>(" */"));
+		seq.push_back(std::make_unique<TextWriter>(
+			FunctionNameTransformer::getOverloadName(
+				context, functionDecl, path)));
+
+		return std::make_unique<SequentialWriter>(std::move(seq));
+	}
 
 	if (node->countChildren() <= 1) {
 		auto child = *node->begin();
@@ -196,9 +211,14 @@ auto FunctionDeclarationMapper::writeTypedOverloadDeclarationBody(
 				child,
 				path.appendArgument(std::make_shared<view::VarDecl>(  //
 					"_",
-					valueChild->getValue())));
+					valueChild->getValue(),
+					std::make_shared<view::SparseSourceLoc>()  //
+					))  //
+			);
 		}
 	}
+
+	auto vec = std::vector<C11GenericWriter::Case>();
 
 	for (const auto& child : *node) {
 		if (auto valueChild =
@@ -207,14 +227,17 @@ auto FunctionDeclarationMapper::writeTypedOverloadDeclarationBody(
 			const view::FunctionOverload& newPath = path.appendArgument(  //
 				std::make_shared<view::VarDecl>(  //
 					"_",
-					valueChild->getValue()));
+					valueChild->getValue(),
+					std::make_shared<view::SparseSourceLoc>()  //
+					));
 
 			auto childWriter =
 				writeTypedOverloadDeclarationBody(child, newPath);
 
 			vec.push_back(C11GenericWriter::Case {
 				.type = std::make_unique<TextWriter>(
-					TypeNameTransformer::getTypeName(valueChild->getValue())),
+					TypeNameTransformer(context).buildMappedType(
+						valueChild->getValue())),
 				.value = std::move(childWriter)  //
 			});
 		}
@@ -245,7 +268,7 @@ void FunctionDeclarationMapper::writeTypedOverloadDeclarations(
 			}
 
 			auto bodyWriter = writeTypedOverloadDeclarationBody(
-				child, view::FunctionOverload(nullptr, {}));
+				child, view::FunctionOverload(nullptr, {}, nullptr));
 
 			stream << DefineWriter(
 				getTypedOverloadHandlerName(argCount),
@@ -260,21 +283,20 @@ auto FunctionDeclarationMapper::getTypedOverloadHandlerName(
 	std::size_t argCount) const -> std::unique_ptr<WriterBase> {
 	if (argCounts.size() <= 1) {
 		return std::make_unique<TextWriter>(
-			FunctionNameTransformer::getOverloadName(
-				functionDecl->getQualifiedName())  //
+			FunctionNameTransformer::getOverloadName(context, functionDecl)  //
 		);
 	}
 
 	return std::make_unique<TextWriter>(
 		FunctionNameTransformer::getOverloadName(
-			functionDecl->getQualifiedName(), argCount)  //
+			context, functionDecl, argCount)  //
 	);
 }
 
 void FunctionDeclarationMapper::writeCountSwitchDeclaration(
 	WriterStream& stream) const {
-	auto functionName = FunctionNameTransformer::getOverloadName(
-		functionDecl->getQualifiedName());
+	auto functionName =
+		FunctionNameTransformer::getOverloadName(context, functionDecl);
 
 	auto declArgs = std::vector<std::unique_ptr<WriterBase>>();
 	declArgs.emplace_back(std::make_unique<TextWriter>("..."));
@@ -283,12 +305,18 @@ void FunctionDeclarationMapper::writeCountSwitchDeclaration(
 	bodyArgs.emplace_back(std::make_unique<TextWriter>(functionName));
 	bodyArgs.emplace_back(std::make_unique<TextWriter>("__VA_ARGS__"));
 
+	auto maybePrefix = context->readConfigVariable("preludePrefix");
+
+	if (!maybePrefix.has_value()) {
+		UNREACHABLE();
+	}
+
 	auto body = std::make_unique<ExpressionCallWriter>(
-		std::make_unique<TextWriter>(
-			"KODGEN_PRELUDE__CALL_OVERLOAD"),  // TODO: use config context
+		std::make_unique<TextWriter>(maybePrefix.value() + "_CALL_OVERLOAD"),
 		std::move(bodyArgs));
 
 	stream << DefineWriter(std::make_unique<TextWriter>(functionName),
 	                       std::move(declArgs),
-	                       std::move(body));
+	                       std::move(body))
+		   << TextWriter::Newline;
 }

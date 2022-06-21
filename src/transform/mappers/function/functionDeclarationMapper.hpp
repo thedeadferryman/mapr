@@ -17,16 +17,18 @@
 
 #include "util/tree/nodeBase.hpp"
 
-namespace kodgen::transform {
+namespace mapr::transform {
 
 class FunctionDeclarationMapper : public MapperBase {
-	std::shared_ptr<view::FunctionDecl> functionDecl;
+	std::shared_ptr<const view::FunctionDecl> functionDecl;
 	std::shared_ptr<tree::NodeBase> overloadTree;
 	std::unordered_map<std::size_t, std::size_t> argCounts;
+	std::shared_ptr<config::PipelineContext> context;
 
   public:
 	explicit FunctionDeclarationMapper(
-		std::shared_ptr<view::FunctionDecl> functionDecl);
+		std::shared_ptr<const view::FunctionDecl> functionDecl,
+		std::shared_ptr<config::PipelineContext> context);
 
 	[[nodiscard]] auto checkDependencies() const
 		-> std::vector<std::shared_ptr<DependencyRequest>> override;
@@ -34,9 +36,6 @@ class FunctionDeclarationMapper : public MapperBase {
 	void write(WriterStream& writer) override;
 
   private:
-	void writeSingleOverload(WriterStream& writer);
-
-	// TODO: these methods are about to be extracted to a helper class
 	// region writeTypedOverloadDeclarations
 
 	[[nodiscard]] auto writeTypedOverloadDeclarationBody(
@@ -57,6 +56,8 @@ class FunctionDeclarationMapper : public MapperBase {
 	auto getTypedOverloadHandlerName(std::size_t argCount) const
 		-> std::unique_ptr<WriterBase>;
 	void writeCountSwitchDeclaration(WriterStream& stream) const;
+	void writeOverload(WriterStream& writer,
+	                   const view::FunctionOverload& target) const;
 };
 
-}  // namespace kodgen::transform
+}  // namespace mapr::transform

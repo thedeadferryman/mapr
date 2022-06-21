@@ -6,7 +6,7 @@
 
 #include "util/stringBuilder.hpp"
 
-using kodgen::view::AlreadyExistsException;
+using mapr::view::AlreadyExistsException;
 
 AlreadyExistsException::AlreadyExistsException(std::string_view declId,
                                                view::DeclType type)

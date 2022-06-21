@@ -6,9 +6,9 @@
 
 #include "lineEscapedWriter.hpp"
 
-#include <boost/regex.hpp>
+#include <regex>
 
-using kodgen::transform::LineEscapedWriter;
+using mapr::transform::LineEscapedWriter;
 
 LineEscapedWriter::LineEscapedWriter(std::unique_ptr<WriterBase> subWriter)
 	: subWriter(std::move(subWriter)) {}
@@ -18,10 +18,10 @@ void LineEscapedWriter::apply(std::ostream& stream) const {
 
 	subWriter->apply(sstream);
 
-	auto rStr = boost::regex_replace(  //
+	auto rStr = std::regex_replace(  //
 		sstream.str(),  //
-		boost::regex(R"(([\r\n]{1,2}))"),
-		std::string(R"( \\$1)"));
+		std::regex(R"(([\r\n]{1,2}))"),
+		std::string(R"( \$1)"));
 
 	stream << rStr;
 }

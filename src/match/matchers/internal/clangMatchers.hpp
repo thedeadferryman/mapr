@@ -8,7 +8,7 @@
 
 #include <clang/ASTMatchers/ASTMatchers.h>
 
-namespace kodgen::match {
+namespace mapr::match {
 
 /// Credited from Clang 14 code
 ///
@@ -35,4 +35,10 @@ AST_MATCHER_P(clang::FunctionDecl,
 	return success;
 }
 
-}  // namespace kodgen::match
+
+
+AST_MATCHER(clang::FunctionDecl, isOperator) {
+	return Node.isOverloadedOperator();
+}
+
+}  // namespace mapr::match
