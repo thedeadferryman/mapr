@@ -87,14 +87,14 @@ set(LIBMAPR_match_SOURCESET
 
 # region LIBMAPR_transform_SOURCESET
 set(LIBMAPR_transform_SOURCESET
-        src/transform/aux/auxDecl.cpp
-        src/transform/aux/auxDecl.hpp
-        src/transform/aux/includeFile.cpp
-        src/transform/aux/includeFile.hpp
-        src/transform/aux/templateFile.cpp
-        src/transform/aux/templateFile.hpp
-        src/transform/aux/typeDecl.cpp
-        src/transform/aux/typeDecl.hpp
+        src/transform/auxl/auxDecl.cpp
+        src/transform/auxl/auxDecl.hpp
+        src/transform/auxl/includeFile.cpp
+        src/transform/auxl/includeFile.hpp
+        src/transform/auxl/templateFile.cpp
+        src/transform/auxl/templateFile.hpp
+        src/transform/auxl/typeDecl.cpp
+        src/transform/auxl/typeDecl.hpp
         src/transform/dependencies/auxRequest.cpp
         src/transform/dependencies/auxRequest.hpp
         src/transform/dependencies/declRequest.cpp
